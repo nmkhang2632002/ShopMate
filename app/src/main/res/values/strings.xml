@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ShopMate</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="login">Đăng nhập</string>
+    <string name="not_have_account">Chưa có tài khoản? Đăng ký</string>
+    <string name="toggle_password">Ẩn/Hiện mật khẩu</string>
 </resources>

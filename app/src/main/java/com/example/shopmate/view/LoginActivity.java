@@ -1,13 +1,17 @@
 package com.example.shopmate.view;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,17 +26,19 @@ import com.example.shopmate.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.example.shopmate.view.RegisterActivity;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private ImageView ivTogglePassword;
     private Button btnLogin;
-    private TextView tvRegister;
+    private TextView tvRegister, tvForgotPassword;
+    private ProgressBar progressBar;
     private boolean isPasswordVisible = false;
     private RequestQueue requestQueue;
 
     private static final String LOGIN_URL = "https://saleapp-mspd.onrender.com/v1/auth/login";
+    private static final String FORGOT_PASSWORD_URL = "https://saleapp-mspd.onrender.com/v1/auth/forgot-password"; // Đổi theo API thực tế
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +50,12 @@ public class LoginActivity extends AppCompatActivity {
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        progressBar = findViewById(R.id.progressBar);
 
         requestQueue = Volley.newRequestQueue(this);
+
+        progressBar.setVisibility(View.GONE);
 
         ivTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
 
@@ -53,6 +63,10 @@ public class LoginActivity extends AppCompatActivity {
 
         tvRegister.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        });
+
+        tvForgotPassword.setOnClickListener(v -> {
+            showForgotPasswordDialog();
         });
     }
 
@@ -95,6 +109,10 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!isValid) return;
 
+        // Show loading
+        progressBar.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(false);
+
         doLogin(email, password);
     }
 
@@ -106,6 +124,8 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
             showToast("Lỗi dữ liệu đầu vào");
+            progressBar.setVisibility(View.GONE);
+            btnLogin.setEnabled(true);
             return;
         }
 
@@ -129,6 +149,9 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
+                    progressBar.setVisibility(View.GONE);
+                    btnLogin.setEnabled(true);
+
                     if (success || !token.isEmpty()) {
                         SharedPreferences prefs = getSharedPreferences("ShopMatePrefs", MODE_PRIVATE);
                         prefs.edit()
@@ -141,7 +164,6 @@ public class LoginActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        // Gợi ý: nếu message liên quan đến email hoặc password, có thể setError cho trường đó
                         if (message.toLowerCase().contains("email")) {
                             etEmail.setError(message);
                         } else if (message.toLowerCase().contains("mật khẩu") || message.toLowerCase().contains("password")) {
@@ -152,9 +174,92 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnLogin.setEnabled(true);
                     String errorMsg = "Đăng nhập thất bại";
                     if (error.networkResponse != null && error.networkResponse.data != null) {
-                        errorMsg = new String(error.networkResponse.data);
+                        try {
+                            String errData = new String(error.networkResponse.data);
+                            JSONObject errJson = new JSONObject(errData);
+                            if (errJson.has("message")) {
+                                errorMsg = errJson.getString("message");
+                            } else {
+                                errorMsg = errData;
+                            }
+                        } catch (Exception ex) {
+                            errorMsg = "Đăng nhập thất bại";
+                        }
+                    }
+                    showToast(errorMsg);
+                }
+        );
+
+        requestQueue.add(request);
+    }
+
+    private void showForgotPasswordDialog() {
+        final EditText inputEmail = new EditText(this);
+        inputEmail.setHint("Nhập email của bạn");
+        inputEmail.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Quên mật khẩu")
+                .setMessage("Nhập email bạn đã đăng ký để nhận hướng dẫn đặt lại mật khẩu.")
+                .setView(inputEmail)
+                .setPositiveButton("Gửi", (dialog, which) -> {
+                    String email = inputEmail.getText().toString().trim();
+                    if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        showToast("Email không hợp lệ");
+                    } else {
+                        sendForgotPasswordRequest(email);
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void sendForgotPasswordRequest(String email) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            showToast("Lỗi dữ liệu đầu vào");
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST, FORGOT_PASSWORD_URL, params,
+                response -> {
+                    progressBar.setVisibility(View.GONE);
+                    String msg = "Vui lòng kiểm tra email để đặt lại mật khẩu!";
+                    try {
+                        if (response.has("message")) {
+                            msg = response.getString("message");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    showToast(msg);
+                },
+                error -> {
+                    progressBar.setVisibility(View.GONE);
+                    String errorMsg = "Gửi yêu cầu thất bại";
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String errData = new String(error.networkResponse.data);
+                            JSONObject errJson = new JSONObject(errData);
+                            if (errJson.has("message")) {
+                                errorMsg = errJson.getString("message");
+                            } else {
+                                errorMsg = errData;
+                            }
+                        } catch (Exception ex) {
+                            errorMsg = "Gửi yêu cầu thất bại";
+                        }
                     }
                     showToast(errorMsg);
                 }

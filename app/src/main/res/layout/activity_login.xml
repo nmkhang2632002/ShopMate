@@ -13,69 +13,113 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đăng nhập"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            android:text="Hãy đăng nhập tài khoản của bạn!"
+            android:textColor="@android:color/black"
+            android:textStyle="italic"
+            android:textSize="18sp"
             android:layout_gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:padding="16dp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
+
 
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
+            android:layout_height="48dp"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:drawableStart="@android:drawable/ic_dialog_email"
             android:drawablePadding="8dp"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/bg_edittext"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Trường mật khẩu với icon con mắt và icon khóa -->
+        <!-- Trường mật khẩu với icon con mắt -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="24dp">
 
             <EditText
                 android:id="@+id/etPassword"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Mật khẩu"
+                android:layout_height="match_parent"
+                android:hint="@string/password"
                 android:inputType="textPassword"
                 android:drawableStart="@android:drawable/ic_lock_idle_lock"
                 android:drawablePadding="8dp"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/bg_edittext" />
 
             <ImageView
                 android:id="@+id/ivTogglePassword"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
                 android:src="@drawable/ic_eye_off"
-                android:contentDescription="Ẩn/Hiện mật khẩu" />
+                android:contentDescription="@string/toggle_password" />
         </LinearLayout>
 
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đăng nhập"
-            android:backgroundTint="@android:color/holo_blue_dark"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="20dp" />
+            android:layout_height="48dp"
+            android:text="@string/login"
+            android:backgroundTint="@color/primary"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_button_rounded" />
 
-        <TextView
-            android:id="@+id/tvRegister"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chưa có tài khoản? Đăng ký"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textStyle="italic"
-            android:layout_gravity="center" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:padding="12dp"
+                android:text="Chưa có tài khoản? Đăng ký"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textStyle="italic"
+                android:gravity="center"
+                android:clickable="true"
+                android:foreground="?attr/selectableItemBackground" />
+
+            <TextView
+                android:id="@+id/tvForgotPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:padding="12dp"
+                android:text="Quên mật khẩu?"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textStyle="italic"
+                android:gravity="center"
+                android:clickable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_marginStart="24dp" />
+        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
     </LinearLayout>
 </ScrollView>
