@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ImageView ivToggleRegisterPassword, ivToggleConfirmPassword;
     private Button btnRegister;
     private TextView tvLogin;
+    private ProgressBar progressBarRegister;
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
 
@@ -48,6 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
         ivToggleConfirmPassword = findViewById(R.id.ivToggleConfirmPassword);
         btnRegister = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
+        progressBarRegister = findViewById(R.id.progressBarRegister);
 
         requestQueue = Volley.newRequestQueue(this);
 
@@ -140,6 +144,10 @@ public class RegisterActivity extends AppCompatActivity {
 
             if (!isValid) return;
 
+            // Xử lý loading
+            progressBarRegister.setVisibility(View.VISIBLE);
+            btnRegister.setEnabled(false);
+
             // Nếu hợp lệ, gọi API đăng ký
             doRegister(name, email, password, phone, address);
         });
@@ -162,12 +170,17 @@ public class RegisterActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
             showToast("Lỗi dữ liệu đầu vào!");
+            progressBarRegister.setVisibility(View.GONE);
+            btnRegister.setEnabled(true);
             return;
         }
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST, REGISTER_URL, params,
                 response -> {
+                    progressBarRegister.setVisibility(View.GONE);
+                    btnRegister.setEnabled(true);
+
                     // Xử lý kết quả trả về từ API
                     boolean success = false;
                     String message = "Đăng ký thất bại";
@@ -186,23 +199,56 @@ public class RegisterActivity extends AppCompatActivity {
                         startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         finish();
                     } else {
-                        showToast(message);
+                        handleServerErrorMessage(message);
                     }
                 },
                 error -> {
+                    progressBarRegister.setVisibility(View.GONE);
+                    btnRegister.setEnabled(true);
+
                     String errorMsg = "Đăng ký thất bại";
                     if (error.networkResponse != null && error.networkResponse.data != null) {
-                        errorMsg = new String(error.networkResponse.data);
+                        try {
+                            String errData = new String(error.networkResponse.data);
+                            JSONObject errJson = new JSONObject(errData);
+                            if (errJson.has("message")) {
+                                errorMsg = errJson.getString("message");
+                            } else {
+                                errorMsg = errData;
+                            }
+                        } catch (Exception ex) {
+                            // Nếu parse lỗi, giữ nguyên errorMsg
+                        }
                     }
-                    showToast(errorMsg);
+                    handleServerErrorMessage(errorMsg);
                 }
         );
 
         requestQueue.add(request);
     }
 
+    /**
+     * Xử lý lỗi chi tiết từ server trả về, setError vào đúng trường
+     */
+    private void handleServerErrorMessage(String message) {
+        String msgLower = message.toLowerCase();
+        if (msgLower.contains("email")) {
+            etEmail.setError(message);
+        } else if (msgLower.contains("số điện thoại") || msgLower.contains("phone")) {
+            etPhone.setError(message);
+        } else if (msgLower.contains("tên")) {
+            etName.setError(message);
+        } else if (msgLower.contains("address") || msgLower.contains("địa chỉ")) {
+            etAddress.setError(message);
+        } else if (msgLower.contains("password") || msgLower.contains("mật khẩu")) {
+            etPassword.setError(message);
+        } else {
+            showToast(message);
+        }
+    }
+
     private void showToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(RegisterActivity.this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void clearErrors() {

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/primary"/> <!-- Đổi thành màu bạn muốn nếu cần -->
+    <corners android:radius="24dp"/>         <!-- Bo góc, có thể chỉnh số dp -->
+</selector>
