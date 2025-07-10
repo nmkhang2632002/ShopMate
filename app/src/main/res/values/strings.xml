@@ -1,3 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ShopMate</string>
+    <string name="category_icon">Category Icon</string>
+    <string name="product_image">Product Image</string>
+    <string name="promotional_banner">Promotional Banner</string>
+    <string name="search_hint">Search products…</string>
+    <string name="featured_products">Featured Products</string>
+    <string name="categories">Categories</string>
+    <string name="see_all">See All</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="cart">Cart</string>
+    <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
+    <string name="cart_badge_content_description">Cart items count</string>
+    
+    <!-- Category Products Page -->
+    <string name="back">Back</string>
+    <string name="sort">Sort</string>
+    <string name="filter">Filter</string>
+    <string name="products_found">Products found</string>
+    <string name="no_products_found">No Products Found</string>
+    <string name="no_products_in_category">There are no products in this category at the moment.</string>
+    
+    <!-- Product Detail Page -->
+    <string name="product_details">Product Details</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="adding_to_cart">Adding...</string>
+    <string name="added_to_cart_message">Added %1$d item(s) to cart!</string>
+    <string name="added_to_cart_success">Product added to cart successfully!</string>
+    <string name="product_not_available">Product not available</string>
+    <string name="quantity">Quantity:</string>
+    <string name="total_price">Total:</string>
+    <string name="specifications">Specifications</string>
+    <string name="description">Description</string>
+    <string name="add_to_wishlist">Add to Wishlist</string>
+    <string name="share">Share</string>
+    <string name="out_of_stock">Out of Stock</string>
+    <string name="brand">Brand</string>
+    <string name="category">Category</string>
+    <string name="sku">SKU</string>
+    <string name="retry">Retry</string>
+    <string name="failed_to_load_product">Failed to load product details</string>
+    <string name="no_description_available">No description available.</string>
+    
+    <!-- Cart Page -->
+    <string name="shopping_cart">Shopping Cart</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="shipping">Shipping</string>
+    <string name="free">FREE</string>
+    <string name="total">Total</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="proceeding_to_checkout">Proceeding to checkout…</string>
+    <string name="your_cart_is_empty">Your Cart is Empty</string>
+    <string name="empty_cart_message">Looks like you haven\'t added any products to your cart yet.</string>
+    <string name="start_shopping">Start Shopping</string>
+    <string name="failed_to_load_cart">Failed to load your cart</string>
+    <string name="remove_item">Remove item</string>
 </resources>

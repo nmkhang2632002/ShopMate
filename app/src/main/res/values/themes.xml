@@ -1,9 +1,200 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.ShopMate" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_variant</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_background</item>
+
+        <!-- Other colors -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/surface</item>
     </style>
 
     <style name="Theme.ShopMate" parent="Base.Theme.ShopMate" />
+
+    <!-- Button Styles -->
+    <style name="ShopMate.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/on_primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <style name="ShopMate.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/primary</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeWidth">1.5dp</item>
+    </style>
+
+    <style name="ShopMate.Button.Tertiary" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/primary</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Card Styles -->
+    <style name="ShopMate.Card.Product" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="contentPadding">12dp</item>
+    </style>
+
+    <style name="ShopMate.Card.Category" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardBackgroundColor">@color/surface_variant</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <!-- Text Styles -->
+    <style name="ShopMate.Text.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="ShopMate.Text.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ShopMate.Text.Subtitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="ShopMate.Text.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="ShopMate.Text.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/text_tertiary</item>
+    </style>
+
+    <style name="ShopMate.Text.Price" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/price_color</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Input Field Styles -->
+    <style name="ShopMate.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxStrokeColor">@color/outline</item>
+        <item name="hintTextColor">@color/text_tertiary</item>
+    </style>
+
+    <!-- Bottom Navigation Styles -->
+    <style name="ShopMate.BottomNavigation.ActiveIndicator" parent="">
+        <item name="android:drawable">@drawable/bottom_nav_active_indicator_bg</item>
+        <item name="android:width">64dp</item>
+        <item name="android:height">32dp</item>
+    </style>
+
+    <style name="ShopMate.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconSize">24dp</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_selector</item>
+        <item name="itemActiveIndicatorStyle">@style/ShopMate.BottomNavigation.ActiveIndicator</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="itemRippleColor">@color/primary_container</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+    <!-- Toolbar/AppBar Styles -->
+    <style name="ShopMate.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextAppearance">@style/ShopMate.Text.Title</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:background">@color/surface</item>
+    </style>
+
+    <!-- Chip Styles -->
+    <style name="ShopMate.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipCornerRadius">20dp</item>
+        <item name="chipBackgroundColor">@color/surface_variant</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="checkedIconTint">@color/primary</item>
+    </style>
+
+    <!-- SearchView Style -->
+    <style name="ShopMate.SearchView" parent="Widget.Material3.SearchView">
+        <item name="android:background">@color/surface_variant</item>
+        <item name="android:elevation">2dp</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <!-- Badge Styles -->
+    <style name="ShopMate.Badge" parent="Widget.Material3.Badge">
+        <item name="backgroundColor">@color/cart_badge</item>
+        <item name="badgeTextColor">@color/on_error</item>
+        <item name="badgeRadius">8dp</item>
+    </style>
+
+    <!-- FloatingActionButton Style -->
+    <style name="ShopMate.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="tint">@color/on_primary</item>
+        <item name="elevation">6dp</item>
+        <item name="pressedTranslationZ">8dp</item>
+    </style>
+
+    <!-- Tab Layout Style -->
+    <style name="ShopMate.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="tabIndicatorColor">@color/primary</item>
+        <item name="tabSelectedTextColor">@color/primary</item>
+        <item name="tabTextColor">@color/text_secondary</item>
+        <item name="tabIndicatorHeight">3dp</item>
+        <item name="tabMode">scrollable</item>
+    </style>
+
+    <!-- ProgressBar Style -->
+    <style name="ShopMate.ProgressBar" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="indicatorColor">@color/primary</item>
+        <item name="trackColor">@color/outline_variant</item>
+        <item name="indicatorSize">32dp</item>
+    </style>
+
+    <!-- Switch Style -->
+    <style name="ShopMate.Switch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="thumbTint">@color/primary</item>
+        <item name="trackTint">@color/primary_container</item>
+    </style>
+
+    <!-- Snackbar Style -->
+    <style name="ShopMate.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/surface_container_high</item>
+    </style>
+
 </resources>

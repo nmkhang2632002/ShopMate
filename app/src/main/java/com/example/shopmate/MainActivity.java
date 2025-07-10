@@ -1,40 +1,48 @@
 package com.example.shopmate;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
 
-import com.example.shopmate.view.PostAdapter;
-import com.example.shopmate.viewmodel.PostViewModel;
+import com.example.shopmate.view.CartFragment;
+import com.example.shopmate.view.HomeFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-
-    private PostViewModel postViewModel;
-    private PostAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RecyclerView recyclerView = new RecyclerView(this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        setContentView(recyclerView);
+        setContentView(R.layout.activity_main);
 
-        adapter = new PostAdapter();
-        recyclerView.setAdapter(adapter);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
+        Fragment homeFragment = new HomeFragment();
 
-        postViewModel.getPosts().observe(this, posts -> {
-            adapter.setPosts(posts);
+        // Set initial fragment
+        if (savedInstanceState == null) {
+            setCurrentFragment(homeFragment);
+        }
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                setCurrentFragment(new HomeFragment());
+            } else if (id == R.id.nav_search) {
+                setCurrentFragment(new HomeFragment()); // Replace with SearchFragment when available
+            } else if (id == R.id.nav_cart) {
+                setCurrentFragment(new CartFragment());
+            } else if (id == R.id.nav_profile) {
+                setCurrentFragment(new HomeFragment()); // Replace with ProfileFragment when available
+            }
+            return true;
         });
+    }
 
-        postViewModel.loadPosts();
+    private void setCurrentFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, fragment)
+                .commit();
     }
 }

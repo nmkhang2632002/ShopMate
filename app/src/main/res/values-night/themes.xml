@@ -1,7 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.ShopMate" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Dark theme colors -->
+        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorSurfaceVariant">@color/dark_surface_variant</item>
+        <item name="android:colorBackground">@color/dark_background</item>
+        <item name="colorOnSurface">@color/dark_on_surface</item>
+        <item name="colorOutline">@color/dark_outline</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/dark_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/dark_surface</item>
+
     </style>
+
 </resources>

@@ -10,14 +10,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 
 public class PostRepository {
-    private final PostApi postApi;
+   private final PostApi postApi;
 
-    public PostRepository() {
+   public PostRepository() {
        postApi = RetrofitClient.getInstance().create(PostApi.class);
-    }
+   }
 
-    public void fetchPosts(Callback<List<Post>> callback) {
-        Call<List<Post>> call = postApi.getPosts();
-        call.enqueue(callback);
-    }
+   public void fetchPosts(Callback<List<Post>> callback) {
+        postApi.getPosts().enqueue(callback);
+   }
 }
