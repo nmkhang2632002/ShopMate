@@ -5,11 +5,11 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.shopmate.model.Banner;
-import com.example.shopmate.model.Category;
-import com.example.shopmate.model.Product;
-import com.example.shopmate.repository.CategoryRepository;
-import com.example.shopmate.repository.ProductRepository;
+import com.example.shopmate.data.model.Banner;
+import com.example.shopmate.data.model.Category;
+import com.example.shopmate.data.model.Product;
+import com.example.shopmate.data.repository.CategoryRepository;
+import com.example.shopmate.data.repository.ProductRepository;
 
 import java.util.ArrayList;
 import java.util.List;

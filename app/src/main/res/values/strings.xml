@@ -14,6 +14,7 @@
     <string name="favorites">Favorites</string>
     <string name="profile">Profile</string>
     <string name="cart_badge_content_description">Cart items count</string>
+    <string name="logout">Logout</string>
     
     <!-- Category Products Page -->
     <string name="back">Back</string>

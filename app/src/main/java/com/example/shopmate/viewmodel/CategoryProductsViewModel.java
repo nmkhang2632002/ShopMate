@@ -3,8 +3,8 @@ package com.example.shopmate.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.shopmate.model.Product;
-import com.example.shopmate.repository.ProductRepository;
+import com.example.shopmate.data.model.Product;
+import com.example.shopmate.data.repository.ProductRepository;
 
 import java.util.List;
 
