@@ -1,0 +1,27 @@
+---
+globs: *.xml
+---
+
+# ShopMate UI Design Guidelines
+
+## Color Scheme
+
+- **Primary Color**: `@color/primary` (#FF6B35) - Main brand color
+- **Secondary Color**: `@color/secondary` (#6366F1) - Accent color
+- **Background**: `@color/background` (#F8FAFC) - Light background
+- **Card Background**: `@color/card_background` (#FFFFFF) - White card surfaces
+- **Text Primary**: `@color/text_primary` (#0F172A) - Main text color
+- **Text Secondary**: `@color/text_secondary` (#475569) - Secondary text color
+
+## Components
+
+- Use `MaterialCardView` for card containers with `app:cardCornerRadius="16dp"`
+- Use `MaterialButton` for primary actions with `app:cornerRadius="12dp"`
+- Use `TextInputLayout` with `style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"`
+- Set `android:textAllCaps="false"` on buttons for modern style
+
+## Spacing
+
+- Standard margin between elements: 16dp
+- Card padding: 24dp
+- Standard button height: 56dp
