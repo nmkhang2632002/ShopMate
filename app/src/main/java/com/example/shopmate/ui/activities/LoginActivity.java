@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView errorTextView;
     private AuthViewModel authViewModel;
     private AuthManager authManager;
+    private MaterialButton registerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         progressBar = findViewById(R.id.progressBar);
         errorTextView = findViewById(R.id.errorTextView);
+        registerButton = findViewById(R.id.registerButton);
         authManager = AuthManager.getInstance(this);
     }
 
@@ -93,6 +95,20 @@ public class LoginActivity extends AppCompatActivity {
                 clearInputErrors();
             }
         });
+        
+        // Observe validation errors
+        authViewModel.getValidationError().observe(this, validationError -> {
+            if (validationError != null && !validationError.isEmpty()) {
+                showError(validationError);
+                
+                // Set specific field errors based on the validation message
+                if (validationError.toLowerCase().contains("email")) {
+                    emailInputLayout.setError(validationError);
+                } else if (validationError.toLowerCase().contains("password")) {
+                    passwordInputLayout.setError(validationError);
+                }
+            }
+        });
     }
 
     private void setupClickListeners() {
@@ -103,28 +119,12 @@ public class LoginActivity extends AppCompatActivity {
             String email = emailEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
             
-            // Client-side validation
-            if (email.isEmpty()) {
-                showError("Email is required");
-                return;
-            }
-            
-            if (password.isEmpty()) {
-                showError("Password is required");
-                return;
-            }
-            
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                showError("Please enter a valid email address");
-                return;
-            }
-            
-            if (password.length() < 4) {
-                showError("Password must be at least 4 characters");
-                return;
-            }
-            
+            // Let the ViewModel handle validation
             authViewModel.login(email, password);
+        });
+        registerButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -146,7 +146,9 @@ public class LoginActivity extends AppCompatActivity {
         // If server provides a message, use it; otherwise use custom message
         if (serverMessage != null && !serverMessage.trim().isEmpty()) {
             // Check for common error patterns and provide user-friendly messages
-            if (serverMessage.toLowerCase().contains("invalid") || 
+            if (serverMessage.toLowerCase().contains("password is incorrect")) {
+                return "Incorrect password. Please try again.";
+            } else if (serverMessage.toLowerCase().contains("invalid") || 
                 serverMessage.toLowerCase().contains("incorrect") ||
                 serverMessage.toLowerCase().contains("wrong")) {
                 return "Invalid email or password. Please try again.";
@@ -177,6 +179,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // Static utility methods for other activities
     public static void logout(android.content.Context context) {
+        // Clear all SharedPreferences data
         AuthManager.getInstance(context).logout();
         
         Intent intent = new Intent(context, LoginActivity.class);

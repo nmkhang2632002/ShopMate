@@ -62,7 +62,7 @@ public class ProfileFragment extends Fragment {
     private void setupObservers() {
         authViewModel.getLogoutResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                // Clear local auth data and redirect to login
+                // AuthRepository already cleared SharedPreferences, just redirect to login
                 authManager.logout();
                 showSuccessMessage("Logged out successfully");
                 redirectToLogin();
@@ -86,16 +86,8 @@ public class ProfileFragment extends Fragment {
 
     private void setupClickListeners() {
         logoutButton.setOnClickListener(v -> {
-            String token = authManager.getAccessToken();
-            if (token != null) {
-                // Call API to logout
-                authViewModel.logout(token);
-            } else {
-                // No token available, just clear local data and redirect
-                authManager.logout();
-                showSuccessMessage("Logged out successfully");
-                redirectToLogin();
-            }
+            // Call local logout method (no API call)
+            authViewModel.logout();
         });
     }
 

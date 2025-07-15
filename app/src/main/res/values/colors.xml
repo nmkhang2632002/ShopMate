@@ -39,9 +39,10 @@
     <color name="scrim">#00000080</color>
 
     <!-- Background Colors -->
-    <color name="background">#FFFFFF</color>
+    <color name="background">#F8FAFC</color>
     <color name="background_variant">#FAFBFC</color>
     <color name="on_background">#0F172A</color>
+    <color name="card_background">#FFFFFF</color>
 
     <!-- Text Colors -->
     <color name="text_primary">#0F172A</color>

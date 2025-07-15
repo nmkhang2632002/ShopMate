@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+
+# ShopMate Android Project Structure
+
+## Architecture
+
+ShopMate follows the MVVM (Model-View-ViewModel) architecture pattern:
+
+- **Model**: Data classes in `app/src/main/java/com/example/shopmate/data/model/`
+- **View**: Activities and Fragments in `app/src/main/java/com/example/shopmate/ui/`
+- **ViewModel**: ViewModels in `app/src/main/java/com/example/shopmate/viewmodel/`
+
+## Key Components
+
+- **Activities**: UI entry points in `app/src/main/java/com/example/shopmate/ui/activities/`
+- **Fragments**: UI components in `app/src/main/java/com/example/shopmate/ui/fragments/`
+- **Adapters**: RecyclerView adapters in `app/src/main/java/com/example/shopmate/ui/adapters/`
+- **Repositories**: Data sources in `app/src/main/java/com/example/shopmate/data/repository/`
+- **Network**: API interfaces in `app/src/main/java/com/example/shopmate/data/network/`
+- **Utils**: Helper classes in `app/src/main/java/com/example/shopmate/util/`
+
+## Main Entry Point
+
+The main application class is `ShopMateApplication.java` which initializes app-wide components.
+alwaysApply: true
+
+---
