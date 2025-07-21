@@ -12,7 +12,7 @@ import com.example.shopmate.util.AuthManager;
 public class CartViewModel extends AndroidViewModel {
     private final CartRepository cartRepository;
     private final AuthManager authManager;
-    private MutableLiveData<Cart> cart = new MutableLiveData<>();  // ✅ Đổi thành MutableLiveData
+    private MutableLiveData<Cart> cart = new MutableLiveData<>();
     
     public CartViewModel(Application application) {
         super(application);
@@ -47,7 +47,7 @@ public class CartViewModel extends AndroidViewModel {
         if (userId != -1) {
             cartRepository.updateCartItemQuantity(userId, itemId, quantity).observeForever(updatedCart -> {
                 if (updatedCart != null) {
-                    cart.setValue(updatedCart);  // ✅ Bây giờ có thể setValue
+                    cart.setValue(updatedCart);
                 }
             });
         }
@@ -58,7 +58,7 @@ public class CartViewModel extends AndroidViewModel {
         if (userId != -1) {
             cartRepository.removeCartItem(userId, itemId).observeForever(updatedCart -> {
                 if (updatedCart != null) {
-                    cart.setValue(updatedCart);  // ✅ Update cart sau khi remove
+                    cart.setValue(updatedCart);
                 }
             });
         }
