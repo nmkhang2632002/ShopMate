@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.shopmate.data.model.Cart;
 import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.AddToCartRequest;
+import com.example.shopmate.data.model.UpdateCartItemQuantityRequest;
 import com.example.shopmate.data.network.CartApi;
 import com.example.shopmate.data.network.RetrofitClient;
 
@@ -115,72 +116,74 @@ public class CartRepository {
     
     public LiveData<Cart> updateCartItemQuantity(int userId, int itemId, int quantity) {
         MutableLiveData<Cart> cartData = new MutableLiveData<>();
+        
+        isLoading.setValue(true);
+        errorMessage.setValue(null);
 
-//        isLoading.setValue(true);
-//        errorMessage.setValue(null);
-//        
-//        cartApi.updateCartItemQuantity(userId, itemId, quantity).enqueue(new Callback<ApiResponse<Cart>>() {
-//            @Override
-//            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
-//                isLoading.setValue(false);
-//                
-//                if (response.isSuccessful() && response.body() != null) {
-//                    ApiResponse<Cart> apiResponse = response.body();
-//                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
-//                        cartData.setValue(apiResponse.getData());
-//                    } else {
-//                        errorMessage.setValue("Failed to update quantity: " + apiResponse.getMessage());
-//                        cartData.setValue(null);
-//                    }
-//                } else {
-//                    errorMessage.setValue("Failed to update quantity: " + response.code());
-//                    cartData.setValue(null);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
-//                isLoading.setValue(false);
-//                errorMessage.setValue("Failed to update quantity: " + t.getMessage());
-//                cartData.setValue(null);
-//            }
-//        });
+        UpdateCartItemQuantityRequest request = new UpdateCartItemQuantityRequest(itemId, quantity);
 
+        cartApi.updateCartItemQuantity(userId, request).enqueue(new Callback<ApiResponse<Cart>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Cart> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        cartData.setValue(apiResponse.getData());
+                    } else {
+                        errorMessage.setValue("Failed to update cart item: " + apiResponse.getMessage());
+                        cartData.setValue(null);
+                    }
+                } else {
+                    errorMessage.setValue("Failed to update cart item: " + response.code());
+                    cartData.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Network error: " + t.getMessage());
+                cartData.setValue(null);
+            }
+        });
+        
         return cartData;
     }
     
     public LiveData<Cart> removeCartItem(int userId, int itemId) {
         MutableLiveData<Cart> cartData = new MutableLiveData<>();
         
-//        isLoading.setValue(true);
-//        errorMessage.setValue(null);
-//        
-//        cartApi.removeCartItem(userId, itemId).enqueue(new Callback<ApiResponse<Cart>>() {
-//            @Override
-//            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
-//                isLoading.setValue(false);
-//                
-//                if (response.isSuccessful() && response.body() != null) {
-//                    ApiResponse<Cart> apiResponse = response.body();
-//                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
-//                        cartData.setValue(apiResponse.getData());
-//                    } else {
-//                        errorMessage.setValue("Failed to remove item: " + apiResponse.getMessage());
-//                        cartData.setValue(null);
-//                    }
-//                } else {
-//                    errorMessage.setValue("Failed to remove item: " + response.code());
-//                    cartData.setValue(null);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
-//                isLoading.setValue(false);
-//                errorMessage.setValue("Failed to remove item: " + t.getMessage());
-//                cartData.setValue(null);
-//            }
-//        });
+        isLoading.setValue(true);
+        errorMessage.setValue(null);
+
+        cartApi.removeCartItem(userId, itemId).enqueue(new Callback<ApiResponse<Cart>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+                isLoading.setValue(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Cart> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        cartData.setValue(apiResponse.getData());
+                    } else {
+                        errorMessage.setValue("Failed to remove item: " + apiResponse.getMessage());
+                        cartData.setValue(null);
+                    }
+                } else {
+                    errorMessage.setValue("Failed to remove item: " + response.code());
+                    cartData.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to remove item: " + t.getMessage());
+                cartData.setValue(null);
+            }
+        });
 
         return cartData;
     }

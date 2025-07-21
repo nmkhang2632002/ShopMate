@@ -8,15 +8,17 @@ public class CartItem implements Serializable {
     private String productName;
     private int quantity;
     private double price;
+    private double subtotal;
 
     public CartItem() {}
 
-    public CartItem(int id, int productID, String productName, int quantity, double price) {
+    public CartItem(int id, int productID, String productName, int quantity, double price, double subtotal) {
         this.id = id;
         this.productID = productID;
         this.productName = productName;
         this.quantity = quantity;
         this.price = price;
+        this.subtotal = subtotal;
     }
 
     // Getters
@@ -35,7 +37,7 @@ public class CartItem implements Serializable {
 
     // Helper methods
     public double getSubtotal() {
-        return quantity * price;
+        return this.subtotal;
     }
 
     public String getFormattedPrice() {

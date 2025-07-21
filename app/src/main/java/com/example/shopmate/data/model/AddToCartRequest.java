@@ -2,7 +2,7 @@ package com.example.shopmate.data.model;
 
 import java.io.Serializable;
 
-public class AddToCartRequest implements Serializable {
+public class    AddToCartRequest implements Serializable {
     private int productID;
     private int quantity;
     private double price;

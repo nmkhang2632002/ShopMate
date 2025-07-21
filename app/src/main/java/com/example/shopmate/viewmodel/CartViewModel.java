@@ -3,6 +3,7 @@ package com.example.shopmate.viewmodel;
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.shopmate.data.model.Cart;
 import com.example.shopmate.data.repository.CartRepository;
@@ -11,7 +12,7 @@ import com.example.shopmate.util.AuthManager;
 public class CartViewModel extends AndroidViewModel {
     private final CartRepository cartRepository;
     private final AuthManager authManager;
-    private LiveData<Cart> cart;
+    private MutableLiveData<Cart> cart = new MutableLiveData<>();  // ✅ Đổi thành MutableLiveData
     
     public CartViewModel(Application application) {
         super(application);
@@ -21,7 +22,7 @@ public class CartViewModel extends AndroidViewModel {
     }
     
     public LiveData<Cart> getCart() {
-        return cart;
+        return cart; 
     }
     
     public LiveData<Boolean> getIsLoading() {
@@ -35,21 +36,31 @@ public class CartViewModel extends AndroidViewModel {
     public void loadCart() {
         int userId = authManager.getUserId();
         if (userId != -1) {
-            cart = cartRepository.getCart(userId);
+            cartRepository.getCart(userId).observeForever(cartData -> {
+                cart.setValue(cartData);
+            });
         }
     }
     
     public void updateCartItemQuantity(int itemId, int quantity) {
         int userId = authManager.getUserId();
         if (userId != -1) {
-            cart = cartRepository.updateCartItemQuantity(userId, itemId, quantity);
+            cartRepository.updateCartItemQuantity(userId, itemId, quantity).observeForever(updatedCart -> {
+                if (updatedCart != null) {
+                    cart.setValue(updatedCart);  // ✅ Bây giờ có thể setValue
+                }
+            });
         }
     }
     
     public void removeCartItem(int itemId) {
         int userId = authManager.getUserId();
         if (userId != -1) {
-            cart = cartRepository.removeCartItem(userId, itemId);
+            cartRepository.removeCartItem(userId, itemId).observeForever(updatedCart -> {
+                if (updatedCart != null) {
+                    cart.setValue(updatedCart);  // ✅ Update cart sau khi remove
+                }
+            });
         }
     }
 } 

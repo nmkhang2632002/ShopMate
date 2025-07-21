@@ -78,27 +78,23 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartItemViewHo
         public void bind(CartItem item) {
             productName.setText(item.getProductName());
             productPrice.setText(item.getFormattedPrice());
-            currentQuantity = item.getQuantity();
+            currentQuantity = item.getQuantity();  // ✅ Luôn sync với data từ server
             updateQuantityDisplay();
-            subtotalValue.setText(item.getFormattedSubtotal());
+            subtotalValue.setText(item.getFormattedSubtotal());  // ✅ Subtotal từ API
 
-            // Set up click listeners
+            // ✅ Chỉ call API, không update local UI
             decreaseQuantityBtn.setOnClickListener(v -> {
-                if (currentQuantity > 1) {
-                    currentQuantity--;
-                    updateQuantityDisplay();
+                if (item.getQuantity() > 1) {  // ✅ Dùng quantity từ item
                     if (listener != null) {
-                        listener.onQuantityChanged(item.getId(), currentQuantity);
+                        listener.onQuantityChanged(item.getId(), item.getQuantity() - 1);
                     }
                 }
             });
 
             increaseQuantityBtn.setOnClickListener(v -> {
-                if (currentQuantity < 10) { // Max quantity limit
-                    currentQuantity++;
-                    updateQuantityDisplay();
+                if (item.getQuantity() < 10) {  // ✅ Dùng quantity từ item
                     if (listener != null) {
-                        listener.onQuantityChanged(item.getId(), currentQuantity);
+                        listener.onQuantityChanged(item.getId(), item.getQuantity() + 1);
                     }
                 }
             });
