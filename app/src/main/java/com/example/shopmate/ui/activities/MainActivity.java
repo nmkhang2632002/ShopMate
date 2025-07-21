@@ -15,6 +15,8 @@ import com.example.shopmate.util.AuthManager;
 import com.example.shopmate.ui.fragments.CartFragment;
 import com.example.shopmate.ui.fragments.HomeFragment;
 import com.example.shopmate.ui.fragments.ProfileFragment;
+import com.example.shopmate.ui.fragments.OrderSuccessFragment;
+import com.example.shopmate.ui.fragments.PaymentFailedFragment;
 import com.example.shopmate.viewmodel.AuthViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -47,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
             setCurrentFragment(homeFragment);
         }
 
+        // Handle payment result navigation
+        handlePaymentResultNavigation();
+
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
@@ -78,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setCurrentFragment(Fragment fragment) {
+    public void setCurrentFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.flFragment, fragment)
@@ -119,5 +124,58 @@ public class MainActivity extends AppCompatActivity {
         
         // Update bottom navigation
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
+    }
+
+    private void handlePaymentResultNavigation() {
+        Intent intent = getIntent();
+
+        if (intent.getBooleanExtra("show_order_success", false)) {
+            String orderId = intent.getStringExtra("order_id");
+            String transactionId = intent.getStringExtra("transaction_id");
+            String paymentMethod = intent.getStringExtra("payment_method");
+
+            // Show order success fragment for VNPay payment
+            if ("VNPay".equals(paymentMethod)) {
+                // Lấy thông tin bổ sung từ intent
+                String username = intent.getStringExtra("username");
+                String phoneNumber = intent.getStringExtra("phone_number");
+                String billingAddress = intent.getStringExtra("billing_address");
+                String orderStatus = intent.getStringExtra("order_status");
+                String totalAmount = intent.getStringExtra("total_amount");
+
+                OrderSuccessFragment successFragment = OrderSuccessFragment.newInstanceForVNPay(
+                        orderId, transactionId, username, phoneNumber, billingAddress, orderStatus, totalAmount);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, successFragment)
+                        .commit();
+
+                // Update bottom navigation to home
+                bottomNavigationView.setSelectedItemId(R.id.nav_home);
+            } else {
+                // Fallback for other payment methods
+                Toast.makeText(this, "Order #" + orderId + " completed successfully!", Toast.LENGTH_LONG).show();
+                navigateToHome();
+            }
+
+        } else if (intent.getBooleanExtra("show_payment_failed", false)) {
+            String orderId = intent.getStringExtra("order_id");
+            String errorMessage = intent.getStringExtra("error_message");
+
+            // Show payment failed fragment
+            PaymentFailedFragment failedFragment = PaymentFailedFragment.newInstance(orderId, errorMessage);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, failedFragment)
+                    .commit();
+
+            // Update bottom navigation to cart
+            bottomNavigationView.setSelectedItemId(R.id.nav_cart);
+
+        } else if (intent.getBooleanExtra("show_checkout", false)) {
+            // Navigate back to cart/checkout
+            setCurrentFragment(new CartFragment());
+            bottomNavigationView.setSelectedItemId(R.id.nav_cart);
+        }
     }
 }

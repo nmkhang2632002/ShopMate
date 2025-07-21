@@ -3,6 +3,8 @@ package com.example.shopmate.data.network;
 import android.content.Context;
 
 import com.example.shopmate.util.AuthManager;
+import com.example.shopmate.utils.Constants;
+import com.example.shopmate.utils.ConfigManager;
 
 import java.io.IOException;
 
@@ -15,9 +17,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-//    private static final String BASE_URL = "https://saleapp-mspd.onrender.com/v1/";
-    private static final String BASE_URL = "http://192.168.1.52:8080/v1/";
-    //192.168.1.52
     private static Retrofit retrofit;
     private static Context context;
 
@@ -30,6 +29,13 @@ public class RetrofitClient {
     
     public static Retrofit getInstance() {
         if (retrofit == null) {
+            // Lấy base URL từ ConfigManager
+            String baseUrl = Constants.BASE_URL + Constants.API_VERSION + "/";
+            if (context != null) {
+                ConfigManager configManager = ConfigManager.getInstance(context);
+                baseUrl = configManager.getApiBaseUrl();
+            }
+
             // Optional: add logging
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -45,12 +51,17 @@ public class RetrofitClient {
             OkHttpClient client = clientBuilder.build();
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(client)
                     .build();
         }
         return retrofit;
+    }
+
+    // Reset retrofit instance when configuration changes
+    public static void resetInstance() {
+        retrofit = null;
     }
 
     // Interceptor to add authentication headers

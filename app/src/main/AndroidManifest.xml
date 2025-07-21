@@ -30,6 +30,19 @@
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="false" />
+
+        <!-- PaymentResultActivity để xử lý deep link từ VNPay -->
+        <activity
+            android:name=".ui.activities.PaymentResultActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="shopmate" android:host="payment-result" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -27,6 +27,7 @@ public class ProfileFragment extends Fragment {
     private TextView phoneTextView;
     private TextView addressTextView;
     private MaterialButton logoutButton;
+    private MaterialButton orderHistoryButton;
     private MaterialCardView loadingCard;
     private AuthManager authManager;
     private AuthViewModel authViewModel;
@@ -50,6 +51,7 @@ public class ProfileFragment extends Fragment {
         phoneTextView = view.findViewById(R.id.phoneTextView);
         addressTextView = view.findViewById(R.id.addressTextView);
         logoutButton = view.findViewById(R.id.logoutButton);
+        orderHistoryButton = view.findViewById(R.id.orderHistoryButton);
         loadingCard = view.findViewById(R.id.loadingCard);
         
         authManager = AuthManager.getInstance(requireContext());
@@ -89,6 +91,20 @@ public class ProfileFragment extends Fragment {
             // Call local logout method (no API call)
             authViewModel.logout();
         });
+
+        orderHistoryButton.setOnClickListener(v -> {
+            // Navigate to Order History
+            navigateToOrderHistory();
+        });
+    }
+
+    private void navigateToOrderHistory() {
+        OrderHistoryFragment orderHistoryFragment = new OrderHistoryFragment();
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, orderHistoryFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void loadUserData() {

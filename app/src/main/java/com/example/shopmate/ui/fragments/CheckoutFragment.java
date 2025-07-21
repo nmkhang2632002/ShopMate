@@ -1,5 +1,7 @@
 package com.example.shopmate.ui.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -171,11 +173,21 @@ public class CheckoutFragment extends Fragment {
             Toast.makeText(getContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         String billingAddress = addressEditText.getText().toString().trim();
-        
-        // Call API to create order
-        orderViewModel.createOrder(selectedPaymentMethod, billingAddress).observe(getViewLifecycleOwner(), order -> {
+
+        if ("VNPAY".equals(selectedPaymentMethod)) {
+            // Handle VNPay payment
+            handleVNPayPayment(billingAddress);
+        } else {
+            // Handle COD payment
+            handleCODPayment(billingAddress);
+        }
+    }
+
+    private void handleCODPayment(String billingAddress) {
+        // Call API to create COD order
+        orderViewModel.createOrder("COD", billingAddress).observe(getViewLifecycleOwner(), order -> {
             if (order != null) {
                 // Navigate to order success screen
                 if (getActivity() != null) {
@@ -187,5 +199,39 @@ public class CheckoutFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void handleVNPayPayment(String billingAddress) {
+        showLoading(true);
+
+        // Call API to create order and get VNPay URL
+        orderViewModel.createVNPayOrder(billingAddress).observe(getViewLifecycleOwner(), vnpayUrl -> {
+            showLoading(false);
+
+            if (vnpayUrl != null && !vnpayUrl.isEmpty()) {
+                // Open VNPay URL in browser
+                openVNPayUrl(vnpayUrl);
+            } else {
+                Toast.makeText(getContext(), "Failed to create VNPay payment", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void openVNPayUrl(String vnpayUrl) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(vnpayUrl));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Cannot open VNPay payment", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showLoading(boolean show) {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (placeOrderBtn != null) {
+            placeOrderBtn.setEnabled(!show);
+        }
     }
 }

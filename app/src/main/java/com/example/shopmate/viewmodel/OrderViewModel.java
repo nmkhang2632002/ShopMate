@@ -24,6 +24,11 @@ public class OrderViewModel extends AndroidViewModel {
         int userId = authManager.getUserId();
         return orderRepository.createOrder(userId, paymentMethod, billingAddress);
     }
+
+    public LiveData<String> createVNPayOrder(String billingAddress) {
+        int userId = authManager.getUserId();
+        return orderRepository.createVNPayOrder(userId, billingAddress);
+    }
     
     public LiveData<Boolean> getIsLoading() {
         return orderRepository.getIsLoading();
