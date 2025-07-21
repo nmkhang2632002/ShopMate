@@ -1,6 +1,7 @@
 package com.example.shopmate.data.model;
 
 import java.io.Serializable;
+import com.example.shopmate.util.CurrencyUtils;
 
 public class Product implements Serializable {
     private int id;
@@ -48,6 +49,6 @@ public class Product implements Serializable {
 
     // Helper method to format price
     public String getFormattedPrice() {
-        return String.format("$%.2f", price);
+        return CurrencyUtils.formatVND(price);
     }
 } 

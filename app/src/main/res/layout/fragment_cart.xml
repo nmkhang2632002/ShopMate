@@ -96,7 +96,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
-                            tools:text="$999.99" />
+                            tools:text="999.999₫" />
 
                     </LinearLayout>
 
@@ -155,7 +155,7 @@
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                             android:textColor="?attr/colorPrimary"
                             android:textStyle="bold"
-                            tools:text="$999.99" />
+                            tools:text="999.999₫" />
 
                     </LinearLayout>
 

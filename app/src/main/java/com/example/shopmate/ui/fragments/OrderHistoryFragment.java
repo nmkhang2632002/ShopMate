@@ -78,6 +78,8 @@ public class OrderHistoryFragment extends Fragment {
                     List<Order> orders = response.body().getData();
                     if (orders != null && !orders.isEmpty()) {
                         orderList.clear();
+                        // Sắp xếp theo ID giảm dần (order mới nhất lên đầu)
+                        orders.sort((o1, o2) -> Integer.compare(o2.getId(), o1.getId()));
                         orderList.addAll(orders);
                         adapter.notifyDataSetChanged();
                         showEmptyView(false);

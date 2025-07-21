@@ -1,4 +1,4 @@
-package com.example.shopmate.utils;
+package com.example.shopmate.config;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,7 +27,7 @@ public class ConfigManager {
     public String getServerHost() {
         return preferences.getString(KEY_SERVER_HOST, Constants.SERVER_HOST);
     }
-    
+
     public String getServerPort() {
         return preferences.getString(KEY_SERVER_PORT, Constants.SERVER_PORT);
     }
@@ -37,6 +37,11 @@ public class ConfigManager {
     }
     
     public String getApiBaseUrl() {
+        // Nếu Constants.BASE_URL đã được set (deployment), sử dụng nó
+        if (Constants.BASE_URL.startsWith("https://")) {
+            return Constants.BASE_URL + Constants.API_VERSION + "/";
+        }
+        // Ngược lại sử dụng local config
         return getBaseUrl() + Constants.API_VERSION + "/";
     }
     
@@ -56,10 +61,10 @@ public class ConfigManager {
                 .putString(KEY_SERVER_PORT, Constants.SERVER_PORT)
                 .apply();
     }
-    
+
     // Check if using custom configuration
     public boolean isUsingCustomConfig() {
-        return !getServerHost().equals(Constants.SERVER_HOST) || 
+        return !getServerHost().equals(Constants.SERVER_HOST) ||
                !getServerPort().equals(Constants.SERVER_PORT);
     }
 }

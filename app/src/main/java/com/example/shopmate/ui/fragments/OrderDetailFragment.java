@@ -16,6 +16,7 @@ import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.OrderDetail;
 import com.example.shopmate.data.network.RetrofitClient;
 import com.example.shopmate.data.network.VNPayApi;
+import com.example.shopmate.util.CurrencyUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import retrofit2.Call;
@@ -132,7 +133,7 @@ public class OrderDetailFragment extends Fragment {
         phoneNumberText.setText(orderDetail.getPhoneNumber());
         
         if (orderDetail.getTotalAmount() != null) {
-            totalAmountText.setText(String.format("₫%.0f", orderDetail.getTotalAmount().doubleValue()));
+            totalAmountText.setText(CurrencyUtils.formatVND(orderDetail.getTotalAmount()));
         }
         
         paymentStatusText.setText(orderDetail.getPaymentStatus());

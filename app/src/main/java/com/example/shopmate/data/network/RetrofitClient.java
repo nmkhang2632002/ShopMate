@@ -3,8 +3,8 @@ package com.example.shopmate.data.network;
 import android.content.Context;
 
 import com.example.shopmate.util.AuthManager;
-import com.example.shopmate.utils.Constants;
-import com.example.shopmate.utils.ConfigManager;
+import com.example.shopmate.config.Constants;
+import com.example.shopmate.config.ConfigManager;
 
 import java.io.IOException;
 
@@ -29,11 +29,18 @@ public class RetrofitClient {
     
     public static Retrofit getInstance() {
         if (retrofit == null) {
-            // Lấy base URL từ ConfigManager
-            String baseUrl = Constants.BASE_URL + Constants.API_VERSION + "/";
-            if (context != null) {
+            // Ưu tiên sử dụng Constants.BASE_URL (cho deployment)
+            String baseUrl;
+            if (Constants.BASE_URL.startsWith("https://")) {
+                // Deployment mode - sử dụng Constants.BASE_URL
+                baseUrl = Constants.BASE_URL + Constants.API_VERSION + "/";
+            } else if (context != null) {
+                // Local mode - sử dụng ConfigManager
                 ConfigManager configManager = ConfigManager.getInstance(context);
                 baseUrl = configManager.getApiBaseUrl();
+            } else {
+                // Fallback
+                baseUrl = Constants.BASE_URL + Constants.API_VERSION + "/";
             }
 
             // Optional: add logging

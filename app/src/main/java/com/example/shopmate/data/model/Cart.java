@@ -3,6 +3,7 @@ package com.example.shopmate.data.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.shopmate.util.CurrencyUtils;
 
 public class Cart implements Serializable {
     private int id;
@@ -47,7 +48,7 @@ public class Cart implements Serializable {
     }
 
     public String getFormattedTotalPrice() {
-        return String.format("$%.2f", totalPrice);
+        return CurrencyUtils.formatVND(totalPrice);
     }
 
     public boolean isEmpty() {

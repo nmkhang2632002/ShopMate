@@ -9,7 +9,7 @@ import com.example.shopmate.data.model.Order;
 import com.example.shopmate.data.network.OrderApi;
 import com.example.shopmate.data.network.VNPayApi;
 import com.example.shopmate.data.network.RetrofitClient;
-import com.example.shopmate.utils.Constants;
+import com.example.shopmate.config.Constants;
 
 import retrofit2.Call;
 import retrofit2.Callback;

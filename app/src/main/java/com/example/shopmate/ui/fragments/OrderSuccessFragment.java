@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.shopmate.R;
+import com.example.shopmate.util.CurrencyUtils;
 import com.example.shopmate.data.model.Order;
 import com.example.shopmate.ui.activities.MainActivity;
 import com.google.android.material.button.MaterialButton;
@@ -124,7 +125,7 @@ public class OrderSuccessFragment extends Fragment {
             phoneNumberText.setText(phoneNumber.isEmpty() ? "N/A" : phoneNumber);
             billingAddressText.setText(billingAddress.isEmpty() ? "N/A" : billingAddress);
             orderStatusText.setText(orderStatus.isEmpty() ? "Processing" : orderStatus);
-            totalAmountText.setText(totalAmount.isEmpty() ? "N/A" : formatCurrency(totalAmount));
+            totalAmountText.setText(totalAmount.isEmpty() ? "N/A" : CurrencyUtils.formatVND(totalAmount));
 
             // Show transaction ID for VNPay
             if (isVNPay && !transactionId.isEmpty()) {
@@ -142,14 +143,7 @@ public class OrderSuccessFragment extends Fragment {
         }
     }
 
-    private String formatCurrency(String amount) {
-        try {
-            double value = Double.parseDouble(amount);
-            return String.format("₫%.0f", value);
-        } catch (NumberFormatException e) {
-            return amount;
-        }
-    }
+
     
     private String formatDate(String dateString) {
         // Simple formatting for demo

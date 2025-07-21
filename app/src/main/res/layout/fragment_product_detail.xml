@@ -94,7 +94,7 @@
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"
-                    tools:text="$99.99" />
+                    tools:text="99.999₫" />
 
                 <!-- Product Description Card -->
                 <com.google.android.material.card.MaterialCardView

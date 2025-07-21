@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Order;
+import com.example.shopmate.util.CurrencyUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -97,7 +98,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             // Total Amount and Payment Status
             if (order.getPayments() != null && !order.getPayments().isEmpty()) {
                 Order.Payment payment = order.getPayments().get(0);
-                totalAmountText.setText(formatCurrency(payment.getAmount()));
+                totalAmountText.setText(CurrencyUtils.formatVND(payment.getAmount()));
                 paymentStatusText.setText(payment.getPaymentStatus());
                 setPaymentStatusColor(paymentStatusText, payment.getPaymentStatus());
             } else {
@@ -119,9 +120,7 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             }
         }
         
-        private String formatCurrency(double amount) {
-            return String.format("₫%.0f", amount);
-        }
+
         
         private void setStatusColor(TextView textView, String status) {
             int colorRes;

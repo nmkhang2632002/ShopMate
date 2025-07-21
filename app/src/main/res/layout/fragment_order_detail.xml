@@ -321,7 +321,7 @@
                             android:id="@+id/totalAmountText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₫15,999"
+                            android:text="15.999₫"
                             android:textColor="@color/primary"
                             android:textStyle="bold"
                             android:textSize="18sp" />
