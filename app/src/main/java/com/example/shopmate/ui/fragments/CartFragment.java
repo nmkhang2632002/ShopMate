@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Cart;
+import com.example.shopmate.ui.activities.MainActivity;
 import com.example.shopmate.ui.adapters.CartAdapter;
 import com.example.shopmate.viewmodel.CartViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -196,9 +197,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
     }
 
     private void navigateToHome() {
-        // In a real app, navigate to home screen
-        if (getActivity() != null) {
-            getActivity().onBackPressed();
+        // Navigate to home using MainActivity's method
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToHome();
         }
     }
 

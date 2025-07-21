@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shopmate.R;
@@ -20,6 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private AuthManager authManager;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         Fragment homeFragment = new HomeFragment();
 
@@ -102,5 +104,20 @@ public class MainActivity extends AppCompatActivity {
         if (!authManager.isLoggedIn()) {
             redirectToLogin();
         }
+    }
+
+    public void navigateToHome() {
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Set home fragment
+        HomeFragment homeFragment = new HomeFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, homeFragment)
+                .commit();
+        
+        // Update bottom navigation
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 }

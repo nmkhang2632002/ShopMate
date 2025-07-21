@@ -36,7 +36,7 @@
     <color name="outline">#CBD5E1</color>
     <color name="outline_variant">#E2E8F0</color>
     <color name="shadow">#0F172A1A</color>
-    <color name="scrim">#00000080</color>
+    <color name="scrim">#80000000</color>
 
     <!-- Background Colors -->
     <color name="background">#F8FAFC</color>
