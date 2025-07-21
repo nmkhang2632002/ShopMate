@@ -1,6 +1,8 @@
 package com.example.shopmate.ui.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +64,12 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
         setupViewModel();
         setupRecyclerView();
         setupClickListeners();
+        
+        // Show loading when fragment is created
+        loadingContainer.setVisibility(View.VISIBLE);
+        
         observeViewModel();
+        loadCart();
         
         return view;
     }
@@ -165,8 +172,27 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
     }
 
     private void handleCheckout() {
-        Toast.makeText(getContext(), R.string.proceeding_to_checkout, Toast.LENGTH_SHORT).show();
-        // In a real app, navigate to checkout screen
+        // Show loading
+        loadingContainer.setVisibility(View.VISIBLE);
+        checkoutBtn.setEnabled(false);
+        checkoutBtn.setText(R.string.proceeding_to_checkout);
+        
+        // Simulate processing delay
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (getActivity() != null) {
+                CheckoutFragment checkoutFragment = CheckoutFragment.newInstance();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, checkoutFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+            
+            // Reset state
+            loadingContainer.setVisibility(View.GONE);
+            checkoutBtn.setEnabled(true);
+            checkoutBtn.setText(R.string.proceed_to_checkout);
+        }, 1500); // 1.5 giây loading
     }
 
     private void navigateToHome() {
