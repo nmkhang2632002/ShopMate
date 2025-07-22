@@ -21,6 +21,14 @@ public class Constants {
     public static final int READ_TIMEOUT = 30; // seconds
     public static final int WRITE_TIMEOUT = 30; // seconds
     
+    // ========== TIMEZONE CONFIGURATION ==========
+    // Timezone chuẩn cho VNPay để tránh lệch múi giờ khi deploy
+    public static final String VIETNAM_TIMEZONE_ID = "Asia/Ho_Chi_Minh";
+    public static final String VNPAY_DATE_FORMAT = "yyyyMMddHHmmss";
+    
+    // VNPay timeout configuration
+    public static final int VNPAY_TIMEOUT_MINUTES = 30; // Tăng lên 30 phút cho deployment
+    
     // Deep link
     public static final String DEEP_LINK_SCHEME = "shopmate";
     public static final String PAYMENT_RESULT_HOST = "payment-result";
