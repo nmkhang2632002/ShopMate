@@ -10,15 +10,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.ApiResponse;
+import com.example.shopmate.data.model.CartItem;
 import com.example.shopmate.data.model.OrderDetail;
+import com.example.shopmate.data.model.OrderDetailResponse;
 import com.example.shopmate.data.network.RetrofitClient;
 import com.example.shopmate.data.network.VNPayApi;
+import com.example.shopmate.ui.adapters.CheckoutItemAdapter;
 import com.example.shopmate.util.CurrencyUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.math.BigDecimal;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,9 +35,11 @@ public class OrderDetailFragment extends Fragment {
     
     private int orderId;
     private VNPayApi vnPayApi;
+    private CheckoutItemAdapter orderItemAdapter;
     
     // Views
     private MaterialToolbar toolbar;
+    private RecyclerView orderItemsRecyclerView;
     private TextView orderIdText;
     private TextView orderDateText;
     private TextView orderStatusText;
@@ -42,6 +50,7 @@ public class OrderDetailFragment extends Fragment {
     private TextView totalAmountText;
     private TextView paymentStatusText;
     private TextView transactionIdText;
+    private TextView debugOrderItemsText;
     private View loadingView;
     private View contentView;
     
@@ -67,6 +76,7 @@ public class OrderDetailFragment extends Fragment {
         
         initViews(view);
         setupToolbar();
+        setupRecyclerView();
         loadOrderDetail();
         
         return view;
@@ -74,6 +84,7 @@ public class OrderDetailFragment extends Fragment {
     
     private void initViews(View view) {
         toolbar = view.findViewById(R.id.toolbar);
+        orderItemsRecyclerView = view.findViewById(R.id.orderItemsRecyclerView);
         orderIdText = view.findViewById(R.id.orderIdText);
         orderDateText = view.findViewById(R.id.orderDateText);
         orderStatusText = view.findViewById(R.id.orderStatusText);
@@ -84,6 +95,7 @@ public class OrderDetailFragment extends Fragment {
         totalAmountText = view.findViewById(R.id.totalAmountText);
         paymentStatusText = view.findViewById(R.id.paymentStatusText);
         transactionIdText = view.findViewById(R.id.transactionIdText);
+        debugOrderItemsText = view.findViewById(R.id.debugOrderItemsText);
         loadingView = view.findViewById(R.id.loadingView);
         contentView = view.findViewById(R.id.contentView);
         
@@ -99,31 +111,87 @@ public class OrderDetailFragment extends Fragment {
         });
     }
     
+    private void setupRecyclerView() {
+        orderItemAdapter = new CheckoutItemAdapter();
+        orderItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        orderItemsRecyclerView.setAdapter(orderItemAdapter);
+    }
+    
     private void loadOrderDetail() {
         showLoading(true);
         
-        vnPayApi.getOrderDetail(orderId).enqueue(new Callback<ApiResponse<OrderDetail>>() {
+        vnPayApi.getOrderDetail(orderId).enqueue(new Callback<ApiResponse<OrderDetailResponse>>() {
             @Override
-            public void onResponse(Call<ApiResponse<OrderDetail>> call, Response<ApiResponse<OrderDetail>> response) {
+            public void onResponse(Call<ApiResponse<OrderDetailResponse>> call, Response<ApiResponse<OrderDetailResponse>> response) {
                 showLoading(false);
                 
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccessful()) {
-                    OrderDetail orderDetail = response.body().getData();
-                    displayOrderDetail(orderDetail);
+                android.util.Log.d("OrderDetail", "=== API Response Debug ===");
+                android.util.Log.d("OrderDetail", "Response successful: " + response.isSuccessful());
+                android.util.Log.d("OrderDetail", "Response code: " + response.code());
+                
+                // Log raw response
+                if (response.raw() != null) {
+                    android.util.Log.d("OrderDetail", "Raw response: " + response.raw().toString());
+                }
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    android.util.Log.d("OrderDetail", "Response body not null");
+                    android.util.Log.d("OrderDetail", "API response success: " + response.body().isSuccessful());
+                    android.util.Log.d("OrderDetail", "API response status: " + response.body().getStatus());
+                    android.util.Log.d("OrderDetail", "API response message: " + response.body().getMessage());
+                    
+                    // Log the actual data object
+                    OrderDetailResponse data = response.body().getData();
+                    android.util.Log.d("OrderDetail", "Data object: " + (data != null ? "not null" : "null"));
+                    
+                    if (data != null) {
+                        android.util.Log.d("OrderDetail", "Order ID: " + data.getId());
+                        android.util.Log.d("OrderDetail", "Payment Method: " + data.getPaymentMethod());
+                        android.util.Log.d("OrderDetail", "Payments: " + (data.getPayments() != null ? data.getPayments().size() + " items" : "null"));
+                        android.util.Log.d("OrderDetail", "CartItems: " + (data.getCartItems() != null ? data.getCartItems().size() + " items" : "null"));
+                        
+                        if (data.getPayments() != null && !data.getPayments().isEmpty()) {
+                            android.util.Log.d("OrderDetail", "First payment amount: " + data.getPayments().get(0).getAmount());
+                        }
+                    }
+                    
+                    if (response.body().isSuccessful()) {
+                        OrderDetailResponse orderDetail = response.body().getData();
+                        android.util.Log.d("OrderDetail", "OrderDetail data: " + (orderDetail != null ? "not null" : "null"));
+                        if (orderDetail != null) {
+                            displayOrderDetail(orderDetail);
+                        }
+                    } else {
+                        android.util.Log.e("OrderDetail", "API response not successful");
+                        Toast.makeText(getContext(), "Failed to load order details", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
+                    android.util.Log.e("OrderDetail", "Response not successful or body is null");
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorString = response.errorBody().string();
+                            android.util.Log.e("OrderDetail", "Error body: " + errorString);
+                        } catch (Exception e) {
+                            android.util.Log.e("OrderDetail", "Failed to read error body", e);
+                        }
+                    }
                     Toast.makeText(getContext(), "Failed to load order details", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<OrderDetail>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<OrderDetailResponse>> call, Throwable t) {
                 showLoading(false);
+                android.util.Log.e("OrderDetail", "API call failed", t);
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
     
-    private void displayOrderDetail(OrderDetail orderDetail) {
+    private void displayOrderDetail(OrderDetailResponse orderDetail) {
+        android.util.Log.d("OrderDetail", "=== Starting displayOrderDetail ===");
+        android.util.Log.d("OrderDetail", "OrderDetail object: " + (orderDetail != null ? "not null" : "null"));
+        
         orderIdText.setText("#" + orderDetail.getId());
         orderDateText.setText(orderDetail.getFormattedOrderDate());
         orderStatusText.setText(orderDetail.getOrderStatus());
@@ -132,8 +200,34 @@ public class OrderDetailFragment extends Fragment {
         usernameText.setText(orderDetail.getUsername());
         phoneNumberText.setText(orderDetail.getPhoneNumber());
         
-        if (orderDetail.getTotalAmount() != null) {
-            totalAmountText.setText(CurrencyUtils.formatVND(orderDetail.getTotalAmount()));
+        // Calculate total amount from multiple sources
+        BigDecimal totalAmount = orderDetail.getTotalAmount();
+        
+        // Priority 1: Use totalAmount from API if available
+        if (totalAmount == null) {
+            // Priority 2: Get from payments.amount
+            if (orderDetail.getPayments() != null && !orderDetail.getPayments().isEmpty()) {
+                // Convert from VNPay format (multiply by 100) back to VND
+                double paymentAmount = orderDetail.getPayments().get(0).getAmount();
+                totalAmount = BigDecimal.valueOf(paymentAmount);
+                android.util.Log.d("OrderDetail", "Using payment amount: " + totalAmount);
+            }
+            // Priority 3: Calculate from cart items
+            else if (orderDetail.getCartItems() != null && !orderDetail.getCartItems().isEmpty()) {
+                totalAmount = BigDecimal.ZERO;
+                for (CartItem item : orderDetail.getCartItems()) {
+                    if (item.getSubtotal() != null) {
+                        totalAmount = totalAmount.add(item.getSubtotal());
+                    }
+                }
+                android.util.Log.d("OrderDetail", "Calculated totalAmount from cart items: " + totalAmount);
+            }
+        }
+        
+        if (totalAmount != null) {
+            totalAmountText.setText(CurrencyUtils.formatVND(totalAmount));
+        } else {
+            totalAmountText.setText("0đ");
         }
         
         paymentStatusText.setText(orderDetail.getPaymentStatus());
@@ -144,6 +238,53 @@ public class OrderDetailFragment extends Fragment {
         } else {
             transactionIdText.setVisibility(View.GONE);
         }
+        
+        // Debug cart items extensively
+        android.util.Log.d("OrderDetail", "=== Cart Items Debug ===");
+        android.util.Log.d("OrderDetail", "getCartItems() result: " + (orderDetail.getCartItems() != null ? "not null" : "null"));
+        
+        if (orderDetail.getCartItems() != null) {
+            android.util.Log.d("OrderDetail", "Cart items size: " + orderDetail.getCartItems().size());
+            if (!orderDetail.getCartItems().isEmpty()) {
+                android.util.Log.d("OrderDetail", "Cart items found: " + orderDetail.getCartItems().size());
+                for (int i = 0; i < orderDetail.getCartItems().size(); i++) {
+                    CartItem item = orderDetail.getCartItems().get(i);
+                    android.util.Log.d("OrderDetail", "Item " + i + ":");
+                    android.util.Log.d("OrderDetail", "  - ID: " + item.getId());
+                    android.util.Log.d("OrderDetail", "  - ProductName: " + item.getProductName());
+                    android.util.Log.d("OrderDetail", "  - ProductImage: " + item.getProductImage());
+                    android.util.Log.d("OrderDetail", "  - Quantity: " + item.getQuantity());
+                    android.util.Log.d("OrderDetail", "  - Price: " + item.getPrice());
+                }
+                
+                if (orderItemAdapter != null) {
+                    android.util.Log.d("OrderDetail", "Adapter is not null, setting cart items");
+                    orderItemAdapter.setCartItems(orderDetail.getCartItems());
+                    
+                    // Make sure RecyclerView is visible and update debug text
+                    orderItemsRecyclerView.setVisibility(View.VISIBLE);
+                    debugOrderItemsText.setText("Found " + orderDetail.getCartItems().size() + " items");
+                    debugOrderItemsText.setVisibility(View.VISIBLE);
+                    android.util.Log.d("OrderDetail", "RecyclerView set to visible, debug text updated");
+                } else {
+                    android.util.Log.e("OrderDetail", "Adapter is null!");
+                    debugOrderItemsText.setText("Error: Adapter is null");
+                    debugOrderItemsText.setVisibility(View.VISIBLE);
+                }
+            } else {
+                android.util.Log.d("OrderDetail", "Cart items list is empty");
+                debugOrderItemsText.setText("Cart items list is empty");
+                debugOrderItemsText.setVisibility(View.VISIBLE);
+                orderItemsRecyclerView.setVisibility(View.GONE);
+            }
+        } else {
+            android.util.Log.d("OrderDetail", "Cart items is null");
+            debugOrderItemsText.setText("Cart items is null");
+            debugOrderItemsText.setVisibility(View.VISIBLE);
+            orderItemsRecyclerView.setVisibility(View.GONE);
+        }
+        
+        android.util.Log.d("OrderDetail", "=== End displayOrderDetail ===");
     }
     
     private void showLoading(boolean show) {

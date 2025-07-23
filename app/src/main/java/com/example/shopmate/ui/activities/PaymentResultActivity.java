@@ -12,6 +12,7 @@ import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
 import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.OrderDetail;
+import com.example.shopmate.data.model.OrderDetailResponse;
 import com.example.shopmate.data.model.User;
 import com.example.shopmate.data.network.RetrofitClient;
 import com.example.shopmate.data.network.VNPayApi;
@@ -82,11 +83,14 @@ public class PaymentResultActivity extends AppCompatActivity {
             int orderIdInt = Integer.parseInt(orderId);
 
             // Gọi API lấy order detail
-            vnPayApi.getOrderDetail(orderIdInt).enqueue(new Callback<ApiResponse<OrderDetail>>() {
+            vnPayApi.getOrderDetail(orderIdInt).enqueue(new Callback<ApiResponse<OrderDetailResponse>>() {
                 @Override
-                public void onResponse(Call<ApiResponse<OrderDetail>> call, Response<ApiResponse<OrderDetail>> response) {
+                public void onResponse(Call<ApiResponse<OrderDetailResponse>> call, Response<ApiResponse<OrderDetailResponse>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().isSuccessful()) {
-                        OrderDetail orderDetail = response.body().getData();
+                        OrderDetailResponse orderDetailResponse = response.body().getData();
+
+                        // Convert OrderDetailResponse to OrderDetail for compatibility
+                        OrderDetail orderDetail = convertToOrderDetail(orderDetailResponse);
 
                         // Lấy thông tin user
                         fetchUserInfoAndNavigate(orderDetail, transactionId);
@@ -97,7 +101,7 @@ public class PaymentResultActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<ApiResponse<OrderDetail>> call, Throwable t) {
+                public void onFailure(Call<ApiResponse<OrderDetailResponse>> call, Throwable t) {
                     // Fallback với thông tin cơ bản
                     navigateWithBasicInfo(orderId, transactionId);
                 }
@@ -208,5 +212,27 @@ public class PaymentResultActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
+    }
+    
+    // Converter method để convert OrderDetailResponse thành OrderDetail
+    private OrderDetail convertToOrderDetail(OrderDetailResponse response) {
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setId(response.getId());
+        orderDetail.setCartID(response.getCartID());
+        orderDetail.setUserID(response.getUserID());
+        orderDetail.setPaymentMethod(response.getPaymentMethod());
+        orderDetail.setBillingAddress(response.getBillingAddress());
+        orderDetail.setOrderStatus(response.getOrderStatus());
+        orderDetail.setOrderDate(response.getOrderDate());
+        orderDetail.setPayments(response.getPayments());
+        orderDetail.setUsername(response.getUsername());
+        orderDetail.setPhoneNumber(response.getPhoneNumber());
+        orderDetail.setEmail(response.getEmail());
+        orderDetail.setCartItems(response.getCartItems());
+        orderDetail.setTotalAmount(response.getTotalAmount());
+        orderDetail.setFormattedOrderDate(response.getFormattedOrderDate());
+        orderDetail.setLatestTransactionId(response.getLatestTransactionId());
+        orderDetail.setPaymentStatus(response.getPaymentStatus());
+        return orderDetail;
     }
 }

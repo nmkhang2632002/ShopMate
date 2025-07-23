@@ -3,6 +3,7 @@ package com.example.shopmate.data.network;
 import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.CreateOrderRequest;
 import com.example.shopmate.data.model.OrderDetail;
+import com.example.shopmate.data.model.OrderDetailResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -21,5 +22,5 @@ public interface VNPayApi {
     );
 
     @GET("vnpay/order-detail/{orderId}")
-    Call<ApiResponse<OrderDetail>> getOrderDetail(@Path("orderId") int orderId);
+    Call<ApiResponse<OrderDetailResponse>> getOrderDetail(@Path("orderId") int orderId);
 }

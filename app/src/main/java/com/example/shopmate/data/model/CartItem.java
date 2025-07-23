@@ -1,20 +1,25 @@
 package com.example.shopmate.data.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import com.example.shopmate.util.CurrencyUtils;
+import com.google.gson.annotations.SerializedName;
 
 public class CartItem implements Serializable {
     private int id;
+    @SerializedName("productID")
     private int productID;
+    @SerializedName("productName")
     private String productName;
+    @SerializedName("productImage")
     private String productImage; // Thêm field để lưu URL hình ảnh sản phẩm
     private int quantity;
-    private double price;
-    private double subtotal;
+    private BigDecimal price;
+    private BigDecimal subtotal;
 
     public CartItem() {}
 
-    public CartItem(int id, int productID, String productName, int quantity, double price, double subtotal) {
+    public CartItem(int id, int productID, String productName, int quantity, BigDecimal price, BigDecimal subtotal) {
         this.id = id;
         this.productID = productID;
         this.productName = productName;
@@ -24,7 +29,7 @@ public class CartItem implements Serializable {
     }
 
     // Constructor với productImage
-    public CartItem(int id, int productID, String productName, String productImage, int quantity, double price, double subtotal) {
+    public CartItem(int id, int productID, String productName, String productImage, int quantity, BigDecimal price, BigDecimal subtotal) {
         this.id = id;
         this.productID = productID;
         this.productName = productName;
@@ -40,7 +45,8 @@ public class CartItem implements Serializable {
     public String getProductName() { return productName; }
     public String getProductImage() { return productImage; } // Getter cho productImage
     public int getQuantity() { return quantity; }
-    public double getPrice() { return price; }
+    public BigDecimal getPrice() { return price; }
+    public BigDecimal getSubtotal() { return subtotal; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -48,13 +54,10 @@ public class CartItem implements Serializable {
     public void setProductName(String productName) { this.productName = productName; }
     public void setProductImage(String productImage) { this.productImage = productImage; } // Setter cho productImage
     public void setQuantity(int quantity) { this.quantity = quantity; }
-    public void setPrice(double price) { this.price = price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
 
     // Helper methods
-    public double getSubtotal() {
-        return this.subtotal;
-    }
-
     public String getFormattedPrice() {
         return CurrencyUtils.formatVND(price);
     }

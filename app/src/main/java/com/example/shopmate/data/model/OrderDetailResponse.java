@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
-public class OrderDetail {
+public class OrderDetailResponse {
     private int id;
     private int cartID;
     private int userID;
@@ -30,7 +30,7 @@ public class OrderDetail {
     private String paymentStatus;
 
     // Constructors
-    public OrderDetail() {}
+    public OrderDetailResponse() {}
 
     // Getters and Setters
     public int getId() {

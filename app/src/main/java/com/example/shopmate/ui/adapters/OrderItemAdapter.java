@@ -18,46 +18,42 @@ import com.example.shopmate.data.model.CartItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CheckoutItemAdapter extends RecyclerView.Adapter<CheckoutItemAdapter.CheckoutItemViewHolder> {
+public class OrderItemAdapter extends RecyclerView.Adapter<OrderItemAdapter.OrderItemViewHolder> {
 
-    private List<CartItem> cartItems = new ArrayList<>();
+    private List<CartItem> orderItems = new ArrayList<>();
 
     @NonNull
     @Override
-    public CheckoutItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public OrderItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_checkout, parent, false);
-        return new CheckoutItemViewHolder(view);
+                .inflate(R.layout.item_order_product, parent, false);
+        return new OrderItemViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CheckoutItemViewHolder holder, int position) {
-        CartItem item = cartItems.get(position);
-        android.util.Log.d("CheckoutAdapter", "Binding item at position " + position + ": " + item.getProductName());
+    public void onBindViewHolder(@NonNull OrderItemViewHolder holder, int position) {
+        CartItem item = orderItems.get(position);
         holder.bind(item);
     }
 
     @Override
     public int getItemCount() {
-        return cartItems.size();
+        return orderItems.size();
     }
 
-    public void setCartItems(List<CartItem> cartItems) {
-        android.util.Log.d("CheckoutAdapter", "setCartItems called with " + (cartItems != null ? cartItems.size() : "null") + " items");
-        this.cartItems = cartItems != null ? cartItems : new ArrayList<>();
-        android.util.Log.d("CheckoutAdapter", "Adapter now has " + this.cartItems.size() + " items");
+    public void setOrderItems(List<CartItem> orderItems) {
+        this.orderItems = orderItems != null ? orderItems : new ArrayList<>();
         notifyDataSetChanged();
-        android.util.Log.d("CheckoutAdapter", "notifyDataSetChanged called");
     }
 
-    static class CheckoutItemViewHolder extends RecyclerView.ViewHolder {
+    static class OrderItemViewHolder extends RecyclerView.ViewHolder {
         private final TextView productName;
         private final TextView productPrice;
         private final TextView quantityText;
         private final TextView subtotalValue;
         private final ImageView productImage;
 
-        public CheckoutItemViewHolder(@NonNull View itemView) {
+        public OrderItemViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.productImage);
             productName = itemView.findViewById(R.id.productName);
