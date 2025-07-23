@@ -16,6 +16,17 @@
         android:layout_height="wrap_content"
         android:padding="12dp">
 
+        <!-- Product Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/productImage"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_placeholder_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/RoundedImageView" />
+
         <!-- Product Name -->
         <TextView
             android:id="@+id/productName"
@@ -27,7 +38,7 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintEnd_toStartOf="@+id/removeItemButton"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/productImage"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="iPhone 15" />
 

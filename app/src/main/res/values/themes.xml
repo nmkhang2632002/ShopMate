@@ -197,4 +197,10 @@
         <item name="backgroundTint">@color/surface_container_high</item>
     </style>
 
+    <!-- Rounded ImageView Style -->
+    <style name="RoundedImageView">
+        <item name="cornerSize">12dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
 </resources>
