@@ -57,12 +57,12 @@ public class ProductDetailViewModel extends AndroidViewModel {
         return cartRepository.getErrorMessage();
     }
     
-    public void addToCart(int productId, int quantity, double price) {
+    public void addToCart(int productId, int quantity) {
         addToCartSuccess.setValue(false);
         
         int userId = authManager.getUserId();
         if (userId != -1) {
-            cartRepository.addToCart(userId, productId, quantity, price).observeForever(cart -> {
+            cartRepository.addToCart(userId, productId,quantity).observeForever(cart -> {
                 if (cart != null) {
                     addToCartSuccess.setValue(true);
                 }

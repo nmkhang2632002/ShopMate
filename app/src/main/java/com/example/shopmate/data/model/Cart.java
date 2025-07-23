@@ -54,4 +54,8 @@ public class Cart implements Serializable {
     public boolean isEmpty() {
         return cartItems == null || cartItems.isEmpty();
     }
+
+    public List<CartItem> getItems()  {
+        return cartItems;
+    }
 } 

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import com.example.shopmate.data.model.Product;
 import com.example.shopmate.ui.adapters.BannerAdapter;
 import com.example.shopmate.ui.adapters.CategoryAdapter;
 import com.example.shopmate.ui.adapters.ProductAdapter;
+import com.example.shopmate.viewmodel.CartViewModel;
 import com.example.shopmate.viewmodel.HomeViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -40,6 +42,7 @@ public class HomeFragment extends Fragment implements
     private static final String TAG = "HomeFragment";
     
     private HomeViewModel viewModel;
+    private CartViewModel cartViewModel;
     private ViewPager2 bannerViewPager;
     private TabLayout bannerIndicator;
     private RecyclerView categoriesRecyclerView;
@@ -48,6 +51,8 @@ public class HomeFragment extends Fragment implements
     private CategoryAdapter categoryAdapter;
     private ProductAdapter productAdapter;
     private FrameLayout loadingContainer;
+    private FrameLayout cartContainer;
+    private TextView cartBadge;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,6 +64,8 @@ public class HomeFragment extends Fragment implements
         categoriesRecyclerView = view.findViewById(R.id.categoriesRecyclerView);
         featuredProductsRecyclerView = view.findViewById(R.id.featuredProductsRecyclerView);
         loadingContainer = view.findViewById(R.id.loadingContainer);
+        cartContainer = view.findViewById(R.id.cartContainer);
+        cartBadge = view.findViewById(R.id.cartBadge);
         
         return view;
     }
@@ -71,6 +78,7 @@ public class HomeFragment extends Fragment implements
         setupAdapters();
         setupViewModel();
         observeViewModel();
+        setupCartNavigation();
     }
 
     private void initViews(View view) {
@@ -79,6 +87,11 @@ public class HomeFragment extends Fragment implements
         categoriesRecyclerView = view.findViewById(R.id.categoriesRecyclerView);
         featuredProductsRecyclerView = view.findViewById(R.id.featuredProductsRecyclerView);
         loadingContainer = view.findViewById(R.id.loadingContainer);
+        cartContainer = view.findViewById(R.id.cartContainer);
+        cartBadge = view.findViewById(R.id.cartBadge);
+        
+        // Initially hide the cart badge until we get data
+        cartBadge.setVisibility(View.GONE);
     }
 
     private void setupAdapters() {
@@ -113,6 +126,7 @@ public class HomeFragment extends Fragment implements
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        cartViewModel = new ViewModelProvider(requireActivity()).get(CartViewModel.class);
     }
 
     private void observeViewModel() {
@@ -152,6 +166,38 @@ public class HomeFragment extends Fragment implements
             bannerAdapter.setBanners(banners);
             // Update indicator count
             bannerIndicator.setVisibility(banners.isEmpty() ? View.GONE : View.VISIBLE);
+        });
+        
+        // Observe cart to update the badge
+        cartViewModel.getCart().observe(getViewLifecycleOwner(), cart -> {
+            if (cart != null && cart.getItems() != null) {
+                int itemCount = cart.getItems().size();
+                updateCartBadge(itemCount);
+            } else {
+                updateCartBadge(0);
+            }
+        });
+    }
+    
+    private void updateCartBadge(int itemCount) {
+        if (itemCount > 0) {
+            cartBadge.setVisibility(View.VISIBLE);
+            cartBadge.setText(String.valueOf(itemCount));
+        } else {
+            cartBadge.setVisibility(View.GONE);
+        }
+    }
+    
+    private void setupCartNavigation() {
+        cartContainer.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                CartFragment cartFragment = new CartFragment();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, cartFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
         });
     }
 
@@ -211,5 +257,12 @@ public class HomeFragment extends Fragment implements
             }
         };
         handler.postDelayed(runnable, 3000);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh cart data when fragment resumes
+        cartViewModel.loadCart();
     }
 }

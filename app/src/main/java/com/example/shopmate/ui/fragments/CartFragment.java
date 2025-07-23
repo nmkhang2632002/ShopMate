@@ -1,5 +1,6 @@
 package com.example.shopmate.ui.fragments;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,9 +34,12 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
 
     // UI Components
     private MaterialToolbar toolbar;
+    private MaterialButton clearCartBtn;
+    private TextView cartItemsHeader;
     private RecyclerView cartItemsRecyclerView;
     private MaterialCardView orderSummaryCard;
     private TextView subtotalValue;
+    private TextView shippingValue;
     private TextView totalValue;
     private MaterialButton checkoutBtn;
     private LinearLayout emptyCartContainer;
@@ -77,9 +81,12 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
 
     private void initViews(View view) {
         toolbar = view.findViewById(R.id.toolbar);
+        clearCartBtn = view.findViewById(R.id.clearCartBtn);
+        cartItemsHeader = view.findViewById(R.id.cartItemsHeader);
         cartItemsRecyclerView = view.findViewById(R.id.cartItemsRecyclerView);
         orderSummaryCard = view.findViewById(R.id.orderSummaryCard);
         subtotalValue = view.findViewById(R.id.subtotalValue);
+        shippingValue = view.findViewById(R.id.shippingValue);
         totalValue = view.findViewById(R.id.totalValue);
         checkoutBtn = view.findViewById(R.id.checkoutBtn);
         emptyCartContainer = view.findViewById(R.id.emptyCartContainer);
@@ -101,6 +108,11 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
     }
 
     private void setupClickListeners() {
+        // Clear cart button
+        clearCartBtn.setOnClickListener(v -> {
+            showClearCartConfirmation();
+        });
+
         // Checkout button
         checkoutBtn.setOnClickListener(v -> {
             handleCheckout();
@@ -115,6 +127,17 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
         retryBtn.setOnClickListener(v -> {
             loadCart();
         });
+    }
+
+    private void showClearCartConfirmation() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Clear Cart")
+                .setMessage("Are you sure you want to remove all items from your cart?")
+                .setPositiveButton("Clear", (dialog, which) -> {
+                    viewModel.clearCart();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void observeViewModel() {
@@ -153,19 +176,27 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
 
     private void showEmptyCart() {
         cartItemsRecyclerView.setVisibility(View.GONE);
+        cartItemsHeader.setVisibility(View.GONE);
         orderSummaryCard.setVisibility(View.GONE);
         emptyCartContainer.setVisibility(View.VISIBLE);
         errorContainer.setVisibility(View.GONE);
+        clearCartBtn.setVisibility(View.GONE);
     }
 
     private void showCartContent(Cart cart) {
         cartItemsRecyclerView.setVisibility(View.VISIBLE);
+        cartItemsHeader.setVisibility(View.VISIBLE);
         orderSummaryCard.setVisibility(View.VISIBLE);
         emptyCartContainer.setVisibility(View.GONE);
         errorContainer.setVisibility(View.GONE);
+        clearCartBtn.setVisibility(View.VISIBLE);
 
         // Update adapter with cart items
         adapter.setCartItems(cart.getCartItems());
+        
+        // Update cart header with item count
+        int itemCount = cart.getCartItems().size();
+        cartItemsHeader.setText("My Items (" + itemCount + ")");
 
         // Update order summary
         subtotalValue.setText(cart.getFormattedTotalPrice());
@@ -193,7 +224,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
             loadingContainer.setVisibility(View.GONE);
             checkoutBtn.setEnabled(true);
             checkoutBtn.setText(R.string.proceed_to_checkout);
-        }, 1500); // 1.5 giây loading
+        }, 1500);
     }
 
     private void navigateToHome() {
@@ -205,9 +236,11 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemAction
 
     private void showError(String message) {
         cartItemsRecyclerView.setVisibility(View.GONE);
+        cartItemsHeader.setVisibility(View.GONE);
         orderSummaryCard.setVisibility(View.GONE);
         emptyCartContainer.setVisibility(View.GONE);
         errorContainer.setVisibility(View.VISIBLE);
+        clearCartBtn.setVisibility(View.GONE);
         errorMessage.setText(message);
     }
 

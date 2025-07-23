@@ -1,4 +1,4 @@
-package com.example.shopmate.utils;
+package com.example.shopmate.util;
 
 import android.util.Log;
 

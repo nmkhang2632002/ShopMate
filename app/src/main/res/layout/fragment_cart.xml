@@ -4,23 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="@color/background">
 
     <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        android:background="?attr/colorSurface"
         app:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
-            app:title="@string/shopping_cart"
-            app:titleTextColor="?attr/colorOnSurface" />
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="0dp"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorSurface"
+                app:title="@string/shopping_cart"
+                app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                app:titleTextColor="?attr/colorOnSurface"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/clearCartBtn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clearCartBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Clear Cart"
+                android:textColor="?attr/colorError"
+                app:icon="@drawable/red_trash_icon_vector"
+                app:iconTint="?attr/colorError"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -30,12 +54,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:background="@color/background"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <!-- Cart Header -->
+            <TextView
+                android:id="@+id/cartItemsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:text="My Items"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnBackground" />
 
             <!-- Cart Items Section -->
             <androidx.recyclerview.widget.RecyclerView
@@ -45,7 +84,7 @@
                 android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingBottom="16dp"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_cart" />
 
@@ -54,17 +93,16 @@
                 android:id="@+id/orderSummaryCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeColor="?attr/colorOutline"
-                app:strokeWidth="1dp">
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="24dp">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -80,7 +118,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -88,14 +126,15 @@
                             android:layout_weight="1"
                             android:text="@string/subtotal"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/subtotalValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
                             tools:text="999.999₫" />
 
                     </LinearLayout>
@@ -105,7 +144,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -113,14 +152,15 @@
                             android:layout_weight="1"
                             android:text="@string/shipping"
                             android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
 
                         <TextView
                             android:id="@+id/shippingValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
                             android:text="@string/free" />
 
                     </LinearLayout>
@@ -130,14 +170,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="?attr/colorOutline"
-                        android:layout_marginVertical="8dp" />
+                        android:layout_marginVertical="12dp" />
 
                     <!-- Total -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="24dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -152,7 +192,7 @@
                             android:id="@+id/totalValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                             android:textColor="?attr/colorPrimary"
                             android:textStyle="bold"
                             tools:text="999.999₫" />
@@ -163,12 +203,17 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/checkoutBtn"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="64dp"
                         android:text="@string/proceed_to_checkout"
                         android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
                         android:textColor="?attr/colorOnPrimary"
-                        app:cornerRadius="12dp"
-                        app:backgroundTint="?attr/colorPrimary" />
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp"
+                        app:icon="@drawable/ic_shopping_bag"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
 
                 </LinearLayout>
 
@@ -187,39 +232,46 @@
         android:gravity="center"
         android:padding="32dp"
         android:visibility="gone"
+        android:background="@color/background"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:src="@drawable/ic_empty_box"
-            android:layout_marginBottom="16dp"
-            android:alpha="0.5" />
+            android:layout_marginBottom="24dp"
+            android:alpha="0.7" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/your_cart_is_empty"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textColor="?attr/colorOnSurface"
             android:gravity="center"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="16dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/empty_cart_message"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="32dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startShoppingBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="@string/start_shopping"
-            app:cornerRadius="12dp" />
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            app:cornerRadius="16dp"
+            app:elevation="4dp"
+            app:icon="@drawable/ic_shopping_bag"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp" />
 
     </LinearLayout>
 
@@ -228,15 +280,16 @@
         android:id="@+id/loadingContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black"
-        android:alpha="0.7"
+        android:background="#80000000"
         android:visibility="gone">
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="?attr/colorPrimary" />
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="@android:color/transparent" />
 
     </FrameLayout>
 
@@ -248,14 +301,15 @@
         android:orientation="vertical"
         android:gravity="center"
         android:padding="32dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:background="@color/background">
 
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:src="@drawable/ic_error"
-            android:layout_marginBottom="16dp"
-            android:alpha="0.5" />
+            android:layout_marginBottom="24dp"
+            android:alpha="0.7" />
 
         <TextView
             android:id="@+id/errorMessage"
@@ -265,15 +319,18 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             android:textColor="?attr/colorOnSurface"
             android:gravity="center"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="24dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/retryBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="@string/retry"
+            android:textStyle="bold"
+            android:textAllCaps="false"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="16dp"
+            app:strokeWidth="2dp" />
 
     </LinearLayout>
 

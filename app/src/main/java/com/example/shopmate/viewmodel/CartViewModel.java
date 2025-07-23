@@ -63,4 +63,16 @@ public class CartViewModel extends AndroidViewModel {
             });
         }
     }
+
+    public void clearCart() {
+        int userId = authManager.getUserId();
+        if (userId != -1) {
+            cartRepository.clearCart(userId).observeForever(updatedCart -> {
+                if (updatedCart != null) {
+                    cart.setValue(updatedCart);
+                }
+            });
+        }
+    }
+
 } 

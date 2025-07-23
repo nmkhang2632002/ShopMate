@@ -18,12 +18,14 @@ import com.example.shopmate.ui.fragments.ProfileFragment;
 import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
 import com.example.shopmate.viewmodel.AuthViewModel;
+import com.example.shopmate.viewmodel.CartViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private AuthManager authManager;
     private BottomNavigationView bottomNavigationView;
+    private CartViewModel cartViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_main);
 
+        // Initialize ViewModels
+        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
+        
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         Fragment homeFragment = new HomeFragment();
@@ -108,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
         // Check authentication status when activity resumes
         if (!authManager.isLoggedIn()) {
             redirectToLogin();
+        } else {
+            // Refresh cart data when activity resumes
+            cartViewModel.loadCart();
         }
     }
 
@@ -177,5 +185,9 @@ public class MainActivity extends AppCompatActivity {
             setCurrentFragment(new CartFragment());
             bottomNavigationView.setSelectedItemId(R.id.nav_cart);
         }
+    }
+    
+    public CartViewModel getCartViewModel() {
+        return cartViewModel;
     }
 }
