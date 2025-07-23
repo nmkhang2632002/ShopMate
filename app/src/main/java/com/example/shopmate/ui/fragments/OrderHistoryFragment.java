@@ -19,6 +19,7 @@ import com.example.shopmate.data.network.OrderApi;
 import com.example.shopmate.data.network.RetrofitClient;
 import com.example.shopmate.ui.adapters.OrderHistoryAdapter;
 import com.example.shopmate.util.AuthManager;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +37,14 @@ public class OrderHistoryFragment extends Fragment {
     private AuthManager authManager;
     private View loadingView;
     private View emptyView;
+    private MaterialToolbar toolbar;
     
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_order_history, container, false);
         
         initViews(view);
+        setupToolbar();
         setupRecyclerView();
         loadOrderHistory();
         
@@ -49,6 +52,7 @@ public class OrderHistoryFragment extends Fragment {
     }
     
     private void initViews(View view) {
+        toolbar = view.findViewById(R.id.toolbar);
         recyclerView = view.findViewById(R.id.recyclerViewOrders);
         loadingView = view.findViewById(R.id.loadingView);
         emptyView = view.findViewById(R.id.emptyView);
@@ -56,6 +60,13 @@ public class OrderHistoryFragment extends Fragment {
         // Initialize APIs
         orderApi = RetrofitClient.getInstance().create(OrderApi.class);
         authManager = AuthManager.getInstance(requireContext());
+    }
+    
+    private void setupToolbar() {
+        toolbar.setNavigationOnClickListener(v -> {
+            // Handle back button click
+            requireActivity().onBackPressed();
+        });
     }
     
     private void setupRecyclerView() {

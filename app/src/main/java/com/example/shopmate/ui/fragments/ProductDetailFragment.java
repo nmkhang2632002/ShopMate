@@ -262,11 +262,8 @@ public class ProductDetailFragment extends Fragment {
             return;
         }
         
-        // Calculate total price based on quantity
-        double totalPrice = currentProduct.getPrice() * currentQuantity;
-        
         // Call the view model to add to cart
-        viewModel.addToCart(currentProduct.getId(), currentQuantity, totalPrice);
+        viewModel.addToCart(currentProduct.getId(), currentQuantity);
     }
 
     private void showError(String message) {

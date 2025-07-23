@@ -76,13 +76,13 @@ public class CartRepository {
         return cartData;
     }
     
-    public LiveData<Cart> addToCart(int userId, int productId, int quantity, double price) {
+    public LiveData<Cart> addToCart(int userId, int productId, int quantity) {
         MutableLiveData<Cart> cartData = new MutableLiveData<>();
         
         isLoading.setValue(true);
         errorMessage.setValue(null);
         
-        AddToCartRequest request = new AddToCartRequest(productId, quantity, price);
+        AddToCartRequest request = new AddToCartRequest(productId, quantity);
         
         cartApi.addToCart(userId, request).enqueue(new Callback<ApiResponse<Cart>>() {
             @Override
@@ -181,6 +181,42 @@ public class CartRepository {
             public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
                 isLoading.setValue(false);
                 errorMessage.setValue("Failed to remove item: " + t.getMessage());
+                cartData.setValue(null);
+            }
+        });
+
+        return cartData;
+    }
+
+    public LiveData<Cart> clearCart(int userId) {
+        MutableLiveData<Cart> cartData = new MutableLiveData<>();
+        
+        isLoading.setValue(true);
+        errorMessage.setValue(null);
+
+        cartApi.clearCart(userId).enqueue(new Callback<ApiResponse<Cart>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Cart>> call, Response<ApiResponse<Cart>> response) {
+                isLoading.setValue(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Cart> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        cartData.setValue(apiResponse.getData());
+                    } else {
+                        errorMessage.setValue("Failed to clear cart: " + apiResponse.getMessage());
+                        cartData.setValue(null);
+                    }
+                } else {
+                    errorMessage.setValue("Failed to clear cart: " + response.code());
+                    cartData.setValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Cart>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Failed to clear cart: " + t.getMessage());
                 cartData.setValue(null);
             }
         });
