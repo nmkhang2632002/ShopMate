@@ -19,27 +19,23 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shopmate.R;
-import com.example.shopmate.data.model.Category;
 import com.example.shopmate.data.model.Product;
 import com.example.shopmate.ui.adapters.ProductAdapter;
-import com.example.shopmate.viewmodel.CategoryProductsViewModel;
+import com.example.shopmate.viewmodel.HomeViewModel;
 import com.example.shopmate.viewmodel.CartViewModel;
 
 import java.util.List;
 
-public class CategoryProductsFragment extends Fragment implements ProductAdapter.OnProductClickListener {
+public class AllProductsFragment extends Fragment implements ProductAdapter.OnProductClickListener {
 
-    private static final String TAG = "CategoryProductsFragment";
-    private static final String ARG_CATEGORY_ID = "category_id";
-    private static final String ARG_CATEGORY_NAME = "category_name";
+    private static final String TAG = "AllProductsFragment";
 
-    private CategoryProductsViewModel viewModel;
+    private HomeViewModel viewModel;
     private CartViewModel cartViewModel;
     private ProductAdapter productAdapter;
     private RecyclerView productsRecyclerView;
     private FrameLayout loadingContainer;
     private LinearLayout emptyStateLayout;
-    private TextView categoryTitle;
     private TextView productsCount;
     private ImageView backButton;
     
@@ -47,30 +43,9 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
     private FrameLayout cartContainer;
     private TextView cartBadge;
 
-    private int categoryId;
-    private String categoryName;
-
-    public static CategoryProductsFragment newInstance(Category category) {
-        CategoryProductsFragment fragment = new CategoryProductsFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_CATEGORY_ID, category.getId());
-        args.putString(ARG_CATEGORY_NAME, category.getCategoryName());
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            categoryId = getArguments().getInt(ARG_CATEGORY_ID);
-            categoryName = getArguments().getString(ARG_CATEGORY_NAME);
-        }
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_category_products, container, false);
+        View view = inflater.inflate(R.layout.fragment_all_products, container, false);
         
         initViews(view);
         setupRecyclerView();
@@ -86,18 +61,12 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
         loadingContainer = view.findViewById(R.id.loadingContainer);
         emptyStateLayout = view.findViewById(R.id.emptyStateLayout);
-        categoryTitle = view.findViewById(R.id.categoryTitle);
         productsCount = view.findViewById(R.id.productsCount);
         backButton = view.findViewById(R.id.backButton);
         
         // Initialize cart components
         cartContainer = view.findViewById(R.id.cartContainer);
         cartBadge = view.findViewById(R.id.cartBadge);
-        
-        // Set category name in title
-        if (categoryName != null) {
-            categoryTitle.setText(categoryName);
-        }
         
         // Initially hide cart badge
         cartBadge.setVisibility(View.GONE);
@@ -113,15 +82,15 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
     }
 
     private void setupViewModel() {
-        viewModel = new ViewModelProvider(this).get(CategoryProductsViewModel.class);
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         cartViewModel = new ViewModelProvider(requireActivity()).get(CartViewModel.class);
     }
 
     private void observeViewModel() {
-        // Observe products for this category
-        viewModel.getProductsByCategory(categoryId).observe(getViewLifecycleOwner(), products -> {
+        // Observe all products
+        viewModel.getAllProducts().observe(getViewLifecycleOwner(), products -> {
             if (products != null) {
-                Log.d(TAG, "Products loaded for category " + categoryId + ": " + products.size());
+                Log.d(TAG, "All products loaded: " + products.size());
                 updateProductsDisplay(products);
             }
         });
@@ -194,7 +163,7 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         cartContainer.setOnClickListener(v -> {
             // Navigate to cart
             if (getActivity() != null) {
-                com.example.shopmate.ui.fragments.CartFragment cartFragment = new com.example.shopmate.ui.fragments.CartFragment();
+                CartFragment cartFragment = new CartFragment();
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, cartFragment)
@@ -220,4 +189,4 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
                     .commit();
         }
     }
-} 
+}
