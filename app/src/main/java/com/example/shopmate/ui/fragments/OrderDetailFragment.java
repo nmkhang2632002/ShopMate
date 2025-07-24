@@ -1,6 +1,8 @@
 package com.example.shopmate.ui.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -336,6 +338,32 @@ public class OrderDetailFragment extends Fragment {
             return;
         }
 
+        // Show loading while adding items
+        buyAgainButton.setEnabled(false);
+        buyAgainButton.setText("Adding to cart...");
+
+        // Observe loading state to know when to navigate
+        cartViewModel.getIsLoading().observe(this, isLoading -> {
+            if (!isLoading && !buyAgainButton.isEnabled()) {
+                // Cart loading finished and button was disabled (meaning we just added items)
+                buyAgainButton.setEnabled(true);
+                buyAgainButton.setText("Buy Again");
+                
+                Toast.makeText(getContext(), "All items added to cart!", Toast.LENGTH_SHORT).show();
+                
+                // Navigate to cart fragment
+                CartFragment cartFragment = new CartFragment();
+                getParentFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, cartFragment)
+                        .addToBackStack(null)
+                        .commit();
+                
+                // Remove the observer to prevent multiple navigations
+                cartViewModel.getIsLoading().removeObservers(this);
+            }
+        });
+
         // Add all items to cart using the CartViewModel method
         for (CartItem orderItem : currentOrderDetail.getCartItems()) {
             if (orderItem != null) {
@@ -345,15 +373,5 @@ public class OrderDetailFragment extends Fragment {
                 Log.d("OrderDetail", "Added to cart: " + orderItem.getProductName() + " x" + orderItem.getQuantity());
             }
         }
-        
-        Toast.makeText(getContext(), "All items added to cart!", Toast.LENGTH_SHORT).show();
-        
-        // Navigate to cart fragment
-        CartFragment cartFragment = new CartFragment();
-        getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flFragment, cartFragment)
-                .addToBackStack(null)
-                .commit();
     }
 }
