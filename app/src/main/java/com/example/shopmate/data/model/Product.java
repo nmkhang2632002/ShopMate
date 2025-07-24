@@ -20,7 +20,7 @@ public class Product implements Serializable {
     @SerializedName("price")
     private double price;
     
-    @SerializedName("imageURL")
+    @SerializedName(value = "imageURL", alternate = {"productImage"})
     private String imageURL;
     
     @SerializedName("categoryID")
