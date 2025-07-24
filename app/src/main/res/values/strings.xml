@@ -60,4 +60,15 @@
     <string name="start_shopping">Start Shopping</string>
     <string name="failed_to_load_cart">Failed to load your cart</string>
     <string name="remove_item">Remove item</string>
+    
+    <!-- Chat Page -->
+    <string name="chat">Chat</string>
+    <string name="chat_support">Chat Support</string>
+    <string name="ai_assistant">AI Assistant</string>
+    <string name="customer_support">Customer Support</string>
+    <string name="type_message">Type a message...</string>
+    <string name="send_message">Send message</string>
+    <string name="no_messages">No messages yet. Start a conversation!</string>
+    <string name="failed_to_load_chat">Failed to load chat history</string>
+    <string name="failed_to_send_message">Failed to send message</string>
 </resources>

@@ -13,11 +13,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.shopmate.R;
 import com.example.shopmate.util.AuthManager;
 import com.example.shopmate.ui.fragments.CartFragment;
+import com.example.shopmate.ui.fragments.ChatFragment;
 import com.example.shopmate.ui.fragments.HomeFragment;
 import com.example.shopmate.ui.fragments.ProfileFragment;
 import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
-import com.example.shopmate.viewmodel.AuthViewModel;
 import com.example.shopmate.viewmodel.CartViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 setCurrentFragment(new HomeFragment()); // Replace with SearchFragment when available
             } else if (id == R.id.nav_cart) {
                 setCurrentFragment(new CartFragment());
+            } else if (id == R.id.nav_chat) {
+                setCurrentFragment(new ChatFragment());
             } else if (id == R.id.nav_profile) {
                 setCurrentFragment(new ProfileFragment());
             }
@@ -132,6 +134,21 @@ public class MainActivity extends AppCompatActivity {
         
         // Update bottom navigation
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
+    }
+    
+    public void navigateToChat() {
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Set chat fragment
+        ChatFragment chatFragment = new ChatFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, chatFragment)
+                .commit();
+        
+        // Update bottom navigation
+        bottomNavigationView.setSelectedItemId(R.id.nav_chat);
     }
 
     private void handlePaymentResultNavigation() {
