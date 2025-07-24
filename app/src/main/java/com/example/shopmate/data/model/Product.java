@@ -17,6 +17,9 @@ public class Product implements Serializable {
     @SerializedName("fullDescription")
     private String fullDescription;
     
+    @SerializedName("technicalSpecifications")
+    private String technicalSpecifications;
+    
     @SerializedName("price")
     private double price;
     
@@ -26,7 +29,7 @@ public class Product implements Serializable {
     @SerializedName("categoryID")
     private int categoryID;
     
-    @SerializedName("category")
+    @SerializedName(value = "categoryName", alternate = {"category"})
     private String categoryName;
     
     @SerializedName("totalOrdered")
@@ -35,11 +38,12 @@ public class Product implements Serializable {
     public Product() {}
 
     public Product(int id, String productName, String briefDescription, String fullDescription, 
-                   double price, String imageURL, int categoryID, String categoryName) {
+                   String technicalSpecifications, double price, String imageURL, int categoryID, String categoryName) {
         this.id = id;
         this.productName = productName;
         this.briefDescription = briefDescription;
         this.fullDescription = fullDescription;
+        this.technicalSpecifications = technicalSpecifications;
         this.price = price;
         this.imageURL = imageURL;
         this.categoryID = categoryID;
@@ -52,6 +56,7 @@ public class Product implements Serializable {
     public String getProductName() { return productName; }
     public String getBriefDescription() { return briefDescription; }
     public String getFullDescription() { return fullDescription; }
+    public String getTechnicalSpecifications() { return technicalSpecifications; }
     public double getPrice() { return price; }
     public String getImageURL() { return imageURL; }
     public int getCategoryID() { return categoryID; }
@@ -63,6 +68,7 @@ public class Product implements Serializable {
     public void setProductName(String productName) { this.productName = productName; }
     public void setBriefDescription(String briefDescription) { this.briefDescription = briefDescription; }
     public void setFullDescription(String fullDescription) { this.fullDescription = fullDescription; }
+    public void setTechnicalSpecifications(String technicalSpecifications) { this.technicalSpecifications = technicalSpecifications; }
     public void setPrice(double price) { this.price = price; }
     public void setImageURL(String imageURL) { this.imageURL = imageURL; }
     public void setCategoryID(int categoryID) { this.categoryID = categoryID; }
