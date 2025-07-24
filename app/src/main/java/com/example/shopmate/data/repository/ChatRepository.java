@@ -119,10 +119,9 @@ public class ChatRepository {
                 if (!response.isSuccessful()) {
                     errorMessage.setValue("Failed to send message");
                     Log.e(TAG, "Error sending message: " + response.message());
-                    
-                    // Refresh chat history to get correct state
-                    loadChatHistory();
                 }
+                // Refresh chat history to get correct state
+                loadChatHistory();
             }
 
             @Override
