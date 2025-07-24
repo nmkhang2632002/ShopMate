@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Product;
 import com.example.shopmate.viewmodel.ProductDetailViewModel;
+import com.example.shopmate.util.ImageUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
@@ -65,6 +66,18 @@ public class ProductDetailFragment extends Fragment {
     public static ProductDetailFragment newInstance(Product product) {
         return newInstance(product.getId(), product.getProductName());
     }
+    
+    // TEST: Direct product passing to compare with API call
+    public static ProductDetailFragment newInstanceWithProduct(Product product) {
+        ProductDetailFragment fragment = new ProductDetailFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PRODUCT_ID, product.getId());
+        args.putString(ARG_PRODUCT_NAME, product.getProductName());
+        // Store the product object directly for testing
+        fragment.currentProduct = product;
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,6 +99,20 @@ public class ProductDetailFragment extends Fragment {
         
         return view;
     }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        // TEST: If we have a direct product, display it immediately
+        if (currentProduct != null) {
+            Log.d(TAG, "=== USING DIRECT PRODUCT (no API call) ===");
+            displayProductDetails(currentProduct);
+        } else {
+            Log.d(TAG, "=== NO DIRECT PRODUCT - WILL USE API CALL ===");
+            Log.d(TAG, "Product ID to load: " + productId);
+        }
+    }
 
     private void initViews(View view) {
         toolbar = view.findViewById(R.id.toolbar);
@@ -103,6 +130,13 @@ public class ProductDetailFragment extends Fragment {
         errorContainer = view.findViewById(R.id.errorContainer);
         errorMessage = view.findViewById(R.id.errorMessage);
         retryBtn = view.findViewById(R.id.retryBtn);
+
+        // Debug ImageView
+        Log.d(TAG, "=== IMAGEVIEW INIT DEBUG ===");
+        Log.d(TAG, "productImage findViewById result: " + (productImage != null ? "SUCCESS" : "FAILED"));
+        if (productImage != null) {
+            Log.d(TAG, "ImageView visibility: " + productImage.getVisibility());
+        }
 
         // Set initial toolbar title
         if (productName != null) {
@@ -151,9 +185,13 @@ public class ProductDetailFragment extends Fragment {
     private void observeViewModel() {
         // Observe product details
         viewModel.getProduct(productId).observe(getViewLifecycleOwner(), product -> {
+            Log.d(TAG, "=== Product observed from ViewModel ===");
             if (product != null) {
+                Log.d(TAG, "Product received: " + product.getProductName() + " (ID: " + product.getId() + ")");
                 currentProduct = product;
                 displayProductDetails(product);
+            } else {
+                Log.w(TAG, "Product is null from ViewModel");
             }
         });
 
@@ -194,12 +232,16 @@ public class ProductDetailFragment extends Fragment {
     }
 
     private void loadProductDetails() {
+        Log.d(TAG, "=== loadProductDetails() called ===");
+        Log.d(TAG, "Product ID: " + productId);
         errorContainer.setVisibility(View.GONE);
         viewModel.refreshProduct(productId);
     }
 
     private void displayProductDetails(Product product) {
         Log.d(TAG, "Displaying product: " + product.getProductName());
+        Log.d(TAG, "Product ID: " + product.getId());
+        Log.d(TAG, "Product image URL: " + product.getImageURL());
         
         // Update toolbar title
         toolbar.setTitle(product.getProductName());
@@ -232,18 +274,51 @@ public class ProductDetailFragment extends Fragment {
         // Product category
         productCategory.setText(product.getCategoryName() != null ? product.getCategoryName() : "N/A");
         
-        
         // Update add to cart button state
         addToCartBtn.setEnabled(true);
         addToCartBtn.setText(R.string.add_to_cart);
         
-        // Load product image
+        // Load product image - Use EXACT same approach as working ProductAdapter
         if (product.getImageURL() != null && !product.getImageURL().isEmpty()) {
+            Log.d(TAG, "=== DETAILED IMAGE LOADING DEBUG ===");
+            Log.d(TAG, "Original image URL: " + product.getImageURL());
+            Log.d(TAG, "Product ID: " + product.getId());
+            Log.d(TAG, "Product name: " + product.getProductName());
+            
+            // Use exact same logic as ProductAdapter that works - INCLUDING ImageUtils
+            String fullImageUrl = ImageUtils.getFullImageUrl(product.getImageURL());
+            Log.d(TAG, "Full image URL after ImageUtils: " + fullImageUrl);
+            Log.d(TAG, "ImageView object: " + productImage);
+            Log.d(TAG, "Fragment context: " + getContext());
+            
             Glide.with(this)
-                    .load(product.getImageURL())
+                    .load(fullImageUrl)
                     .placeholder(R.drawable.ic_launcher_background)
                     .error(R.drawable.ic_launcher_background)
                     .into(productImage);
+                    
+            Log.d(TAG, "Glide load command executed");
+            
+            // ALSO try with getContext() like ProductAdapter uses itemView.getContext()
+            if (getContext() != null) {
+                Log.d(TAG, "Trying secondary Glide load with getContext()");
+                productImage.postDelayed(() -> {
+                    if (getContext() != null) {
+                        Glide.with(getContext())
+                                .load(fullImageUrl)
+                                .placeholder(R.drawable.ic_launcher_background)
+                                .error(R.drawable.ic_launcher_background)
+                                .into(productImage);
+                        Log.d(TAG, "Secondary Glide load executed");
+                    }
+                }, 100);
+            }
+        } else {
+            Log.w(TAG, "Product image URL is null or empty");
+            Log.d(TAG, "Product object: " + product);
+            if (productImage != null) {
+                productImage.setImageResource(R.drawable.ic_launcher_background);
+            }
         }
         
         // Hide error state
@@ -279,6 +354,14 @@ public class ProductDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadProductDetails();
+        Log.d(TAG, "=== onResume() called ===");
+        
+        // Only load from API if we don't have a direct product
+        if (currentProduct == null) {
+            Log.d(TAG, "No direct product, loading from API");
+            loadProductDetails();
+        } else {
+            Log.d(TAG, "Have direct product, skipping API call");
+        }
     }
 } 

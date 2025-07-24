@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Product;
+import com.example.shopmate.util.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +87,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productName.setText(product.getProductName());
             productDescription.setText(product.getBriefDescription());
             productPrice.setText(product.getFormattedPrice());
+            
+            String fullImageUrl = ImageUtils.getFullImageUrl(product.getImageURL());
             Glide.with(itemView.getContext())
-                    .load(product.getImageURL())
+                    .load(fullImageUrl)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background)
                     .into(productImage);
         }
     }

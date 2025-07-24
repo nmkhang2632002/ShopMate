@@ -1,5 +1,6 @@
 package com.example.shopmate.data.repository;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -116,6 +117,7 @@ public class ProductRepository {
     }
 
     private void loadProductById(int productId) {
+        Log.d("ProductRepository", "=== loadProductById called for ID: " + productId + " ===");
         isDetailLoading.setValue(true);
         detailErrorMessage.setValue(null);
         
@@ -123,15 +125,23 @@ public class ProductRepository {
             @Override
             public void onResponse(Call<ApiResponse<Product>> call, Response<ApiResponse<Product>> response) {
                 isDetailLoading.setValue(false);
+                Log.d("ProductRepository", "API Response received for product ID: " + productId);
+                Log.d("ProductRepository", "Response successful: " + response.isSuccessful());
                 
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse<Product> apiResponse = response.body();
+                    Log.d("ProductRepository", "API Response successful: " + apiResponse.isSuccessful());
                     if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
-                        productDetailLiveData.setValue(apiResponse.getData());
+                        Product product = apiResponse.getData();
+                        Log.d("ProductRepository", "Product received: " + product.getProductName());
+                        Log.d("ProductRepository", "Product image URL: " + product.getImageURL());
+                        productDetailLiveData.setValue(product);
                     } else {
+                        Log.e("ProductRepository", "API Response not successful: " + apiResponse.getMessage());
                         detailErrorMessage.setValue("Product not found: " + apiResponse.getMessage());
                     }
                 } else {
+                    Log.e("ProductRepository", "HTTP Response not successful: " + response.code());
                     detailErrorMessage.setValue("Failed to load product: " + response.code());
                 }
             }
@@ -139,6 +149,7 @@ public class ProductRepository {
             @Override
             public void onFailure(Call<ApiResponse<Product>> call, Throwable t) {
                 isDetailLoading.setValue(false);
+                Log.e("ProductRepository", "API call failed: " + t.getMessage());
                 detailErrorMessage.setValue("Network error: " + t.getMessage());
             }
         });

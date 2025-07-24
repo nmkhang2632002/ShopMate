@@ -493,11 +493,13 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onProductClick(Product product) {
         Log.d(TAG, "Product clicked: " + product.getProductName());
+        Log.d(TAG, "Product image URL in Home: " + product.getImageURL());
+        Log.d(TAG, "Product ID: " + product.getId());
         
         // Navigate to product detail screen
         if (getActivity() != null) {
-            ProductDetailFragment productDetailFragment = ProductDetailFragment.newInstance(
-                product.getId(), product.getProductName());
+            // TEST: Try passing the product directly instead of just ID
+            ProductDetailFragment productDetailFragment = ProductDetailFragment.newInstanceWithProduct(product);
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.flFragment, productDetailFragment)

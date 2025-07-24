@@ -1,6 +1,7 @@
 package com.example.shopmate.ui.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +20,16 @@ import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.CartItem;
 import com.example.shopmate.data.model.OrderDetail;
 import com.example.shopmate.data.model.OrderDetailResponse;
+import com.example.shopmate.data.model.Product;
 import com.example.shopmate.data.network.RetrofitClient;
 import com.example.shopmate.data.network.VNPayApi;
 import com.example.shopmate.ui.adapters.CheckoutItemAdapter;
+import com.example.shopmate.ui.fragments.CartFragment;
+import com.example.shopmate.ui.fragments.ProductDetailFragment;
 import com.example.shopmate.util.CurrencyUtils;
+import com.example.shopmate.viewmodel.CartViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 
 import java.math.BigDecimal;
 import retrofit2.Call;
@@ -36,6 +43,8 @@ public class OrderDetailFragment extends Fragment {
     private int orderId;
     private VNPayApi vnPayApi;
     private CheckoutItemAdapter orderItemAdapter;
+    private CartViewModel cartViewModel;
+    private OrderDetailResponse currentOrderDetail;
     
     // Views
     private MaterialToolbar toolbar;
@@ -51,6 +60,7 @@ public class OrderDetailFragment extends Fragment {
     private TextView paymentStatusText;
     private TextView transactionIdText;
     private TextView debugOrderItemsText;
+    private MaterialButton buyAgainButton;
     private View loadingView;
     private View contentView;
     
@@ -77,6 +87,7 @@ public class OrderDetailFragment extends Fragment {
         initViews(view);
         setupToolbar();
         setupRecyclerView();
+        setupBuyAgainButton();
         loadOrderDetail();
         
         return view;
@@ -96,10 +107,12 @@ public class OrderDetailFragment extends Fragment {
         paymentStatusText = view.findViewById(R.id.paymentStatusText);
         transactionIdText = view.findViewById(R.id.transactionIdText);
         debugOrderItemsText = view.findViewById(R.id.debugOrderItemsText);
+        buyAgainButton = view.findViewById(R.id.buyAgainButton);
         loadingView = view.findViewById(R.id.loadingView);
         contentView = view.findViewById(R.id.contentView);
         
         vnPayApi = RetrofitClient.getInstance().create(VNPayApi.class);
+        cartViewModel = new ViewModelProvider(requireActivity()).get(CartViewModel.class);
     }
     
     private void setupToolbar() {
@@ -115,6 +128,19 @@ public class OrderDetailFragment extends Fragment {
         orderItemAdapter = new CheckoutItemAdapter();
         orderItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderItemsRecyclerView.setAdapter(orderItemAdapter);
+        
+        // Set item click listener để navigate đến ProductDetailFragment
+        orderItemAdapter.setOnItemClickListener(cartItem -> {
+            if (cartItem != null && cartItem.getProductID() > 0) {
+                navigateToProductDetail(cartItem.getProductID(), cartItem.getProductName());
+            }
+        });
+    }
+    
+    private void setupBuyAgainButton() {
+        buyAgainButton.setOnClickListener(v -> {
+            addAllItemsToCartAndNavigate();
+        });
     }
     
     private void loadOrderDetail() {
@@ -191,6 +217,9 @@ public class OrderDetailFragment extends Fragment {
     private void displayOrderDetail(OrderDetailResponse orderDetail) {
         android.util.Log.d("OrderDetail", "=== Starting displayOrderDetail ===");
         android.util.Log.d("OrderDetail", "OrderDetail object: " + (orderDetail != null ? "not null" : "null"));
+        
+        // Store current order detail for buy again functionality
+        currentOrderDetail = orderDetail;
         
         orderIdText.setText("#" + orderDetail.getId());
         orderDateText.setText(orderDetail.getFormattedOrderDate());
@@ -290,5 +319,41 @@ public class OrderDetailFragment extends Fragment {
     private void showLoading(boolean show) {
         loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
         contentView.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+    
+    private void navigateToProductDetail(int productId, String productName) {
+        ProductDetailFragment productDetailFragment = ProductDetailFragment.newInstance(productId, productName);
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, productDetailFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+    
+    private void addAllItemsToCartAndNavigate() {
+        if (currentOrderDetail == null || currentOrderDetail.getCartItems() == null || currentOrderDetail.getCartItems().isEmpty()) {
+            Toast.makeText(getContext(), "No items to add to cart", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Add all items to cart using the CartViewModel method
+        for (CartItem orderItem : currentOrderDetail.getCartItems()) {
+            if (orderItem != null) {
+                // Use CartViewModel.addToCart(productId, quantity)
+                cartViewModel.addToCart(orderItem.getProductID(), orderItem.getQuantity());
+                
+                Log.d("OrderDetail", "Added to cart: " + orderItem.getProductName() + " x" + orderItem.getQuantity());
+            }
+        }
+        
+        Toast.makeText(getContext(), "All items added to cart!", Toast.LENGTH_SHORT).show();
+        
+        // Navigate to cart fragment
+        CartFragment cartFragment = new CartFragment();
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, cartFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
