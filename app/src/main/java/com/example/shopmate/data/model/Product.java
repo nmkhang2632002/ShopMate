@@ -2,16 +2,35 @@ package com.example.shopmate.data.model;
 
 import java.io.Serializable;
 import com.example.shopmate.util.CurrencyUtils;
+import com.google.gson.annotations.SerializedName;
 
 public class Product implements Serializable {
+    @SerializedName("id")
     private int id;
+    
+    @SerializedName("productName")
     private String productName;
+    
+    @SerializedName("briefDescription")
     private String briefDescription;
+    
+    @SerializedName("fullDescription")
     private String fullDescription;
+    
+    @SerializedName("price")
     private double price;
+    
+    @SerializedName("productImage")
     private String imageURL;
+    
+    @SerializedName("categoryID")
     private int categoryID;
+    
+    @SerializedName("category")
     private String categoryName;
+    
+    @SerializedName("totalOrdered")
+    private int totalOrdered;
 
     public Product() {}
 
@@ -25,6 +44,7 @@ public class Product implements Serializable {
         this.imageURL = imageURL;
         this.categoryID = categoryID;
         this.categoryName = categoryName;
+        this.totalOrdered = 0;
     }
 
     // Getters
@@ -36,6 +56,7 @@ public class Product implements Serializable {
     public String getImageURL() { return imageURL; }
     public int getCategoryID() { return categoryID; }
     public String getCategoryName() { return categoryName; }
+    public int getTotalOrdered() { return totalOrdered; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -46,6 +67,7 @@ public class Product implements Serializable {
     public void setImageURL(String imageURL) { this.imageURL = imageURL; }
     public void setCategoryID(int categoryID) { this.categoryID = categoryID; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    public void setTotalOrdered(int totalOrdered) { this.totalOrdered = totalOrdered; }
 
     // Helper method to format price
     public String getFormattedPrice() {

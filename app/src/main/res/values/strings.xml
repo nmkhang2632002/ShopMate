@@ -10,6 +10,7 @@
     <string name="see_all">See All</string>
     <string name="home">Home</string>
     <string name="search">Search</string>
+    <string name="no_results">No results</string>
     <string name="cart">Cart</string>
     <string name="favorites">Favorites</string>
     <string name="profile">Profile</string>

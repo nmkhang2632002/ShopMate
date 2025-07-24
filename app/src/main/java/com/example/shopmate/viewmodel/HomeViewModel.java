@@ -10,6 +10,8 @@ import com.example.shopmate.data.model.Category;
 import com.example.shopmate.data.model.Product;
 import com.example.shopmate.data.repository.CategoryRepository;
 import com.example.shopmate.data.repository.ProductRepository;
+import com.example.shopmate.data.repository.SearchRepository;
+import com.example.shopmate.data.response.ProductStatsResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.List;
 public class HomeViewModel extends ViewModel {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final SearchRepository searchRepository;
     
     private final MediatorLiveData<Boolean> isLoading = new MediatorLiveData<>();
     private final MediatorLiveData<String> errorMessage = new MediatorLiveData<>();
@@ -29,6 +32,7 @@ public class HomeViewModel extends ViewModel {
     public HomeViewModel() {
         productRepository = new ProductRepository();
         categoryRepository = new CategoryRepository();
+        searchRepository = new SearchRepository();
         
         // Initialize loading state
         isLoading.setValue(false);
@@ -37,8 +41,9 @@ public class HomeViewModel extends ViewModel {
         allProducts = productRepository.getProducts();
         categories = categoryRepository.getCategories();
         
-        // Load banners
+        // Load banners and featured products
         loadBanners();
+        loadFeaturedProducts();
         
         // Monitor loading states
         isLoading.addSource(productRepository.getIsLoading(), loading -> {
@@ -100,6 +105,28 @@ public class HomeViewModel extends ViewModel {
         banners.setValue(sampleBanners);
     }
     
+    private void loadFeaturedProducts() {
+        // Load most ordered products for featured section
+        searchRepository.getMostOrderedProducts(6);
+        
+        // Observe most ordered products and convert to Product list
+        searchRepository.getMostOrderedProducts().observeForever(productStats -> {
+            if (productStats != null && !productStats.isEmpty()) {
+                List<Product> products = new ArrayList<>();
+                for (ProductStatsResponse stats : productStats) {
+                    Product product = new Product();
+                    product.setId(stats.getProductId());
+                    product.setProductName(stats.getProductName());
+                    product.setImageURL(stats.getProductImage());
+                    product.setPrice(stats.getPrice());
+                    product.setCategoryName(stats.getCategory());
+                    products.add(product);
+                }
+                featuredProducts.setValue(products);
+            }
+        });
+    }
+    
     private void checkAndUpdateLoadingState() {
         Boolean productsLoading = productRepository.getIsLoading().getValue();
         Boolean categoriesLoading = categoryRepository.getIsLoading().getValue();
@@ -112,6 +139,10 @@ public class HomeViewModel extends ViewModel {
     
     public LiveData<List<Product>> getAllProducts() {
         return allProducts;
+    }
+    
+    public LiveData<List<Product>> getFeaturedProducts() {
+        return featuredProducts;
     }
     
     public LiveData<List<Category>> getCategories() {
