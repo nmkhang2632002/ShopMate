@@ -29,4 +29,9 @@ public class ApiResponse<T> {
     public boolean isSuccessful() {
         return status == 1000;
     }
-} 
+
+    // Alias method for consistency
+    public boolean isSuccess() {
+        return isSuccessful();
+    }
+}

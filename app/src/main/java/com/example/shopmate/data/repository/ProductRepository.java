@@ -62,12 +62,12 @@ public class ProductRepository {
 
     private void loadProducts() {
         isLoading.setValue(true);
-        
+
         productApi.getProducts().enqueue(new Callback<ApiResponse<List<Product>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Product>>> call, Response<ApiResponse<List<Product>>> response) {
                 isLoading.setValue(false);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse<List<Product>> apiResponse = response.body();
                     if (apiResponse.isSuccessful() && apiResponse.getData() != null) {

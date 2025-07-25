@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.shopmate.data.model.LoginResponse;
+import com.example.shopmate.data.model.User;
 
 public class AuthManager {
     private static final String PREFS_NAME = "ShopMatePrefs";
@@ -94,4 +95,22 @@ public class AuthManager {
     public boolean isCustomer() {
         return hasRole("CUSTOMER");
     }
-} 
+
+    // Helper method to get current user as User object
+    public User getCurrentUser() {
+        if (!isLoggedIn()) {
+            return null;
+        }
+
+        User user = new User();
+        user.setId(getUserId());
+        user.setUsername(getUsername());
+        user.setEmail(getEmail());
+        user.setPhoneNumber(getPhoneNumber());
+        user.setAddress(getAddress());
+        user.setRole(getRole());
+
+        return user;
+    }
+}
+

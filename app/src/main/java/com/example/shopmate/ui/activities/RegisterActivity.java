@@ -88,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (loginResponse != null && loginResponse.isAuthenticated()) {
                 authManager.saveLoginData(loginResponse);
                 showSuccessMessage("Account created successfully!");
-                navigateToMainActivity();
+                navigateBasedOnUserRole();
             }
         });
         
@@ -293,7 +293,28 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-    
+
+    private void navigateBasedOnUserRole() {
+        if (isAdmin()) {
+            navigateToAdminActivity();
+        } else {
+            navigateToMainActivity();
+        }
+    }
+
+    private boolean isAdmin() {
+        // Check if current user is admin (user ID 40 according to README)
+        return authManager.getCurrentUser() != null &&
+               authManager.getCurrentUser().getId() == 40;
+    }
+
+    private void navigateToAdminActivity() {
+        Intent intent = new Intent(this, com.example.shopmate.ui.activities.AdminActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     private String hashPassword(String password) {
         try {
             // Create MD5 Hash
@@ -315,4 +336,4 @@ public class RegisterActivity extends AppCompatActivity {
             return password; // Fallback to plain text if hashing fails
         }
     }
-} 
+}

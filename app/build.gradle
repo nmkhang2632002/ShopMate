@@ -47,4 +47,9 @@ dependencies {
     // Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+    // SwipeRefreshLayout for admin fragments
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // Additional dependencies for admin system
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
 }

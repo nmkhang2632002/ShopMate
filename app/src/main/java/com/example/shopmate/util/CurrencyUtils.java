@@ -1,53 +1,49 @@
 package com.example.shopmate.util;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 public class CurrencyUtils {
-    
-    private static final DecimalFormat VND_FORMAT;
-    
-    static {
-        // Tạo DecimalFormatSymbols cho Việt Nam
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
-        symbols.setGroupingSeparator('.');
-        symbols.setDecimalSeparator(',');
-        
-        // Tạo format với dấu phân cách hàng nghìn
-        VND_FORMAT = new DecimalFormat("#,###", symbols);
+
+    private static final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+    private static final NumberFormat vndFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+
+    public static String formatPrice(double price) {
+        return currencyFormatter.format(price);
     }
-    
-    /**
-     * Format số tiền theo định dạng Việt Nam đồng
-     * @param amount số tiền
-     * @return chuỗi đã format (ví dụ: "15.999₫")
-     */
-    public static String formatVND(double amount) {
-        return VND_FORMAT.format(amount) + "₫";
+
+    public static String formatPriceWithSymbol(double price) {
+        return "$" + String.format("%.2f", price);
     }
-    
-    /**
-     * Format số tiền từ string
-     * @param amount số tiền dạng string
-     * @return chuỗi đã format hoặc giá trị gốc nếu không parse được
-     */
-    public static String formatVND(String amount) {
+
+    public static String formatVND(double price) {
+        return vndFormatter.format(price);
+    }
+
+    // Overload method for BigDecimal
+    public static String formatVND(BigDecimal price) {
+        if (price == null) return "0 VNĐ";
+        return vndFormatter.format(price);
+    }
+
+    public static String formatVNDWithSymbol(double price) {
+        return String.format("%,.0f VNĐ", price);
+    }
+
+    // Overload method for BigDecimal
+    public static String formatVNDWithSymbol(BigDecimal price) {
+        if (price == null) return "0 VNĐ";
+        return String.format("%,.0f VNĐ", price.doubleValue());
+    }
+
+    public static double parsePrice(String priceString) {
         try {
-            double value = Double.parseDouble(amount);
-            return formatVND(value);
+            // Remove currency symbols and parse
+            String cleanPrice = priceString.replaceAll("[^\\d.]", "");
+            return Double.parseDouble(cleanPrice);
         } catch (NumberFormatException e) {
-            return amount;
+            return 0.0;
         }
-    }
-    
-    /**
-     * Format số tiền từ BigDecimal
-     * @param amount số tiền dạng BigDecimal
-     * @return chuỗi đã format
-     */
-    public static String formatVND(java.math.BigDecimal amount) {
-        if (amount == null) return "0₫";
-        return formatVND(amount.doubleValue());
     }
 }
