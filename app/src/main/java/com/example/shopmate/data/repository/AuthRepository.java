@@ -163,7 +163,7 @@ public class AuthRepository {
         return logoutResult;
     }
     
-    public LiveData<LoginResponse> register(String username, String password, String email, 
+    public LiveData<LoginResponse> register(String username, String password, String email,
                                           String phoneNumber, String address) {
         MutableLiveData<LoginResponse> registerData = new MutableLiveData<>();
         
@@ -219,7 +219,7 @@ public class AuthRepository {
                 Log.e(TAG, "Registration API call failed", t);
             }
         });
-        
+
         return registerData;
     }
     
@@ -248,4 +248,4 @@ public class AuthRepository {
         registerData.setValue(null);
         Log.e(TAG, "Registration failed: " + error);
     }
-} 
+}
