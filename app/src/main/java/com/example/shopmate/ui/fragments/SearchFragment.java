@@ -38,15 +38,15 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
 
     private SearchViewModel searchViewModel;
     private CartViewModel cartViewModel;
-    
+
     private MaterialToolbar toolbar;
     private TextInputEditText searchEditText;
     private FloatingActionButton filterFab;
     private RecyclerView searchResultsRecyclerView;
-    
+
     private ProductAdapter productAdapter;
     private BottomSheetDialog filterBottomSheet;
-    
+
     // Filter variables
     private String currentSearchQuery = "";
     private String selectedCategory = "";
@@ -55,21 +55,21 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                           Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initViews(view);
         initViewModels();
         setupRecyclerView();
         setupSearchFunctionality();
         setupFilterButton();
         observeViewModel();
-        
+
         // Load initial data
         searchViewModel.loadFilterOptions();
     }
@@ -79,7 +79,7 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
         searchEditText = view.findViewById(R.id.searchEditText);
         filterFab = view.findViewById(R.id.filterFab);
         searchResultsRecyclerView = view.findViewById(R.id.searchResultsRecyclerView);
-        
+
         // Setup toolbar
         toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
     }
@@ -145,12 +145,12 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
 
     private void performSearch() {
         searchViewModel.searchProducts(
-            currentSearchQuery,
-            selectedCategory.isEmpty() ? null : selectedCategory,
-            selectedPriceRange.isEmpty() ? null : selectedPriceRange,
-            selectedSortBy,
-            0, // page
-            20 // size
+                currentSearchQuery,
+                selectedCategory.isEmpty() ? null : selectedCategory,
+                selectedPriceRange.isEmpty() ? null : selectedPriceRange,
+                selectedSortBy,
+                0, // page
+                20 // size
         );
     }
 
@@ -163,8 +163,8 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
 
     private void createFilterBottomSheet() {
         View bottomSheetView = LayoutInflater.from(getContext())
-            .inflate(R.layout.bottom_sheet_filter, null);
-        
+                .inflate(R.layout.bottom_sheet_filter, null);
+
         filterBottomSheet = new BottomSheetDialog(getContext());
         filterBottomSheet.setContentView(bottomSheetView);
 
@@ -183,12 +183,12 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
         // Apply and Reset buttons
         MaterialButton applyButton = bottomSheetView.findViewById(R.id.applyFilterButton);
         MaterialButton resetButton = bottomSheetView.findViewById(R.id.resetFilterButton);
-        
+
         applyButton.setOnClickListener(v -> {
             performSearch();
             filterBottomSheet.dismiss();
         });
-        
+
         resetButton.setOnClickListener(v -> {
             resetFilters();
             updateFilterChips();
@@ -229,13 +229,13 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
     private void setupPriceRangeFilter(ChipGroup chipGroup) {
         String[] priceRanges = {"under_1m", "1m_to_10m", "over_10m"};
         String[] priceLabels = {"Dưới 1 triệu", "1-10 triệu", "Trên 10 triệu"};
-        
+
         for (int i = 0; i < priceRanges.length; i++) {
             Chip chip = new Chip(getContext());
             chip.setText(priceLabels[i]);
             chip.setCheckable(true);
             chip.setChecked(priceRanges[i].equals(selectedPriceRange));
-            
+
             final String priceRange = priceRanges[i];
             chip.setOnCheckedChangeListener((button, isChecked) -> {
                 if (isChecked) {
@@ -258,13 +258,13 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
     private void setupSortByFilter(ChipGroup chipGroup) {
         String[] sortOptions = {"name", "price_asc", "price_desc", "popularity"};
         String[] sortLabels = {"Tên A-Z", "Giá tăng dần", "Giá giảm dần", "Phổ biến"};
-        
+
         for (int i = 0; i < sortOptions.length; i++) {
             Chip chip = new Chip(getContext());
             chip.setText(sortLabels[i]);
             chip.setCheckable(true);
             chip.setChecked(sortOptions[i].equals(selectedSortBy));
-            
+
             final String sortOption = sortOptions[i];
             chip.setOnCheckedChangeListener((button, isChecked) -> {
                 if (isChecked) {
@@ -300,13 +300,13 @@ public class SearchFragment extends Fragment implements ProductAdapter.OnProduct
         // Navigate to product detail
         Bundle args = new Bundle();
         args.putSerializable("product", product);
-        
+
         ProductDetailFragment fragment = new ProductDetailFragment();
         fragment.setArguments(args);
-        
+
         getParentFragmentManager().beginTransaction()
-            .replace(R.id.flFragment, fragment)
-            .addToBackStack(null)
-            .commit();
+                .replace(R.id.flFragment, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

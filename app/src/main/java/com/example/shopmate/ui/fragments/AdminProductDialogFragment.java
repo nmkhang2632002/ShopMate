@@ -274,7 +274,7 @@ public class AdminProductDialogFragment extends DialogFragment {
         Product newProduct;
         if (product != null) {
             // Update existing product
-            newProduct = new Product(
+            newProduct =  new Product(
                 product.getId(),
                 productName,
                 briefDescription,

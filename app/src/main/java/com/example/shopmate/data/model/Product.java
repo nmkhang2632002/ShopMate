@@ -7,37 +7,37 @@ import com.google.gson.annotations.SerializedName;
 public class Product implements Serializable {
     @SerializedName("id")
     private int id;
-    
+
     @SerializedName("productName")
     private String productName;
-    
+
     @SerializedName("briefDescription")
     private String briefDescription;
-    
+
     @SerializedName("fullDescription")
     private String fullDescription;
-    
+
     @SerializedName("technicalSpecifications")
     private String technicalSpecifications;
 
     @SerializedName("price")
     private double price;
-    
+
     @SerializedName(value = "imageURL", alternate = {"productImage"})
     private String imageURL;
-    
+
     @SerializedName("categoryID")
     private int categoryID;
-    
-    @SerializedName("category")
+
+    @SerializedName(value = "categoryName", alternate = {"category"})
     private String categoryName;
-    
+
     @SerializedName("totalOrdered")
     private int totalOrdered;
 
     public Product() {}
 
-    public Product(int id, String productName, String briefDescription, String fullDescription, 
+    public Product(int id, String productName, String briefDescription, String fullDescription,
                    double price, String imageURL, int categoryID, String categoryName) {
         this.id = id;
         this.productName = productName;
