@@ -123,7 +123,7 @@ public class AuthViewModel extends ViewModel {
             return;
         }
         
-        // Call repository and observe the result
+        // Gửi raw password lên server (không hash)
         authRepository.register(username, password, email, phoneNumber, address).observeForever(response -> {
             registerResult.setValue(response);
         });
@@ -132,4 +132,4 @@ public class AuthViewModel extends ViewModel {
     private boolean isValidEmail(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
-} 
+}

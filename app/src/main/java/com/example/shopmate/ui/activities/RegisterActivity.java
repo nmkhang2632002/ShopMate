@@ -17,9 +17,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout usernameInputLayout;
     private TextInputLayout emailInputLayout;
@@ -88,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (loginResponse != null && loginResponse.isAuthenticated()) {
                 authManager.saveLoginData(loginResponse);
                 showSuccessMessage("Account created successfully!");
-                navigateToMainActivity();
+                navigateBasedOnUserRole();
             }
         });
         
@@ -148,10 +145,8 @@ public class RegisterActivity extends AppCompatActivity {
                 String phone = phoneEditText.getText().toString().trim();
                 String address = addressEditText.getText().toString().trim();
                 
-                // Hash password
-                String passwordHash = hashPassword(password);
-                
-                authViewModel.register(username, passwordHash, email, phone, address);
+                // Truyền raw password, để AuthViewModel tự xử lý hash
+                authViewModel.register(username, password, email, phone, address);
             }
         });
         
@@ -293,26 +288,25 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-    
-    private String hashPassword(String password) {
-        try {
-            // Create MD5 Hash
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(password.getBytes());
-            byte[] messageDigest = digest.digest();
-            
-            // Create Hex String
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : messageDigest) {
-                String h = Integer.toHexString(0xFF & b);
-                while (h.length() < 2)
-                    h = "0" + h;
-                hexString.append(h);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return password; // Fallback to plain text if hashing fails
+
+    private void navigateBasedOnUserRole() {
+        if (isAdmin()) {
+            navigateToAdminActivity();
+        } else {
+            navigateToMainActivity();
         }
     }
-} 
+
+    private boolean isAdmin() {
+        // Check if current user is admin (user ID 40 according to README)
+        return authManager.getCurrentUser() != null &&
+               authManager.getCurrentUser().getId() == 40;
+    }
+
+    private void navigateToAdminActivity() {
+        Intent intent = new Intent(this, com.example.shopmate.ui.activities.AdminActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+}

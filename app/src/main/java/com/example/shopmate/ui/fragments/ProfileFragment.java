@@ -28,6 +28,7 @@ public class ProfileFragment extends Fragment {
     private TextView addressTextView;
     private MaterialButton logoutButton;
     private MaterialButton orderHistoryButton;
+    private MaterialButton adminPanelButton; // Add admin panel button
     private MaterialCardView loadingCard;
     private AuthManager authManager;
     private AuthViewModel authViewModel;
@@ -52,6 +53,7 @@ public class ProfileFragment extends Fragment {
         addressTextView = view.findViewById(R.id.addressTextView);
         logoutButton = view.findViewById(R.id.logoutButton);
         orderHistoryButton = view.findViewById(R.id.orderHistoryButton);
+        adminPanelButton = view.findViewById(R.id.adminPanelButton); // Initialize admin panel button
         loadingCard = view.findViewById(R.id.loadingCard);
         
         authManager = AuthManager.getInstance(requireContext());
@@ -64,10 +66,13 @@ public class ProfileFragment extends Fragment {
     private void setupObservers() {
         authViewModel.getLogoutResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                // AuthRepository already cleared SharedPreferences, just redirect to login
+                // Clear AuthManager data and redirect to login
                 authManager.logout();
                 showSuccessMessage("Logged out successfully");
                 redirectToLogin();
+            } else if (success != null && !success) {
+                // Handle logout failure
+                showErrorMessage("Logout failed. Please try again.");
             }
         });
         
@@ -88,6 +93,8 @@ public class ProfileFragment extends Fragment {
 
     private void setupClickListeners() {
         logoutButton.setOnClickListener(v -> {
+            // Add debug log to check if button click is registered
+            android.util.Log.d("ProfileFragment", "Logout button clicked");
             // Call local logout method (no API call)
             authViewModel.logout();
         });
@@ -96,6 +103,22 @@ public class ProfileFragment extends Fragment {
             // Navigate to Order History
             navigateToOrderHistory();
         });
+
+        // Only show admin panel button for admin users (ID 40)
+        if (adminPanelButton != null) {
+            if (isAdmin()) {
+                adminPanelButton.setVisibility(View.VISIBLE);
+                adminPanelButton.setOnClickListener(v -> navigateToAdminPanel());
+            } else {
+                adminPanelButton.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private boolean isAdmin() {
+        // Check if current user is admin (user ID 40 according to README)
+        return authManager.getCurrentUser() != null &&
+               authManager.getCurrentUser().getId() == 40;
     }
 
     private void navigateToOrderHistory() {
@@ -105,6 +128,12 @@ public class ProfileFragment extends Fragment {
                 .replace(R.id.flFragment, orderHistoryFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void navigateToAdminPanel() {
+        // Navigate to AdminActivity instead of fragment
+        Intent intent = new Intent(requireContext(), com.example.shopmate.ui.activities.AdminActivity.class);
+        startActivity(intent);
     }
 
     private void loadUserData() {
@@ -163,4 +192,4 @@ public class ProfileFragment extends Fragment {
         // Refresh user data when fragment resumes
         loadUserData();
     }
-} 
+}

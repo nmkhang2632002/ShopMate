@@ -23,6 +23,7 @@ import com.example.shopmate.data.model.Category;
 import com.example.shopmate.data.model.Product;
 import com.example.shopmate.ui.adapters.ProductAdapter;
 import com.example.shopmate.viewmodel.CategoryProductsViewModel;
+import com.example.shopmate.viewmodel.CartViewModel;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
     private static final String ARG_CATEGORY_NAME = "category_name";
 
     private CategoryProductsViewModel viewModel;
+    private CartViewModel cartViewModel;
     private ProductAdapter productAdapter;
     private RecyclerView productsRecyclerView;
     private FrameLayout loadingContainer;
@@ -40,6 +42,10 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
     private TextView categoryTitle;
     private TextView productsCount;
     private ImageView backButton;
+    
+    // Cart components
+    private FrameLayout cartContainer;
+    private TextView cartBadge;
 
     private int categoryId;
     private String categoryName;
@@ -71,6 +77,7 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         setupViewModel();
         observeViewModel();
         setupClickListeners();
+        setupCartNavigation();
         
         return view;
     }
@@ -83,10 +90,17 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         productsCount = view.findViewById(R.id.productsCount);
         backButton = view.findViewById(R.id.backButton);
         
+        // Initialize cart components
+        cartContainer = view.findViewById(R.id.cartContainer);
+        cartBadge = view.findViewById(R.id.cartBadge);
+        
         // Set category name in title
         if (categoryName != null) {
             categoryTitle.setText(categoryName);
         }
+        
+        // Initially hide cart badge
+        cartBadge.setVisibility(View.GONE);
     }
 
     private void setupRecyclerView() {
@@ -100,6 +114,7 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(CategoryProductsViewModel.class);
+        cartViewModel = new ViewModelProvider(requireActivity()).get(CartViewModel.class);
     }
 
     private void observeViewModel() {
@@ -120,6 +135,16 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 showError(errorMessage);
+            }
+        });
+        
+        // Observe cart to update the badge
+        cartViewModel.getCart().observe(getViewLifecycleOwner(), cart -> {
+            if (cart != null && cart.getItems() != null) {
+                int itemCount = cart.getItems().size();
+                updateCartBadge(itemCount);
+            } else {
+                updateCartBadge(0);
             }
         });
     }
@@ -154,6 +179,29 @@ public class CategoryProductsFragment extends Fragment implements ProductAdapter
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateCartBadge(int itemCount) {
+        if (itemCount > 0) {
+            cartBadge.setText(String.valueOf(itemCount));
+            cartBadge.setVisibility(View.VISIBLE);
+        } else {
+            cartBadge.setVisibility(View.GONE);
+        }
+    }
+    
+    private void setupCartNavigation() {
+        cartContainer.setOnClickListener(v -> {
+            // Navigate to cart
+            if (getActivity() != null) {
+                com.example.shopmate.ui.fragments.CartFragment cartFragment = new com.example.shopmate.ui.fragments.CartFragment();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, cartFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 
     // ProductAdapter.OnProductClickListener implementation

@@ -7,6 +7,7 @@ import com.example.shopmate.config.Constants;
 import com.example.shopmate.config.ConfigManager;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -48,7 +49,10 @@ public class RetrofitClient {
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
-                    .addInterceptor(interceptor);
+                    .addInterceptor(interceptor)
+                    .connectTimeout(Constants.CONNECT_TIMEOUT, TimeUnit.SECONDS) // Set connection timeout
+                    .readTimeout(Constants.READ_TIMEOUT, TimeUnit.SECONDS) // Set read timeout
+                    .writeTimeout(Constants.WRITE_TIMEOUT, TimeUnit.SECONDS); // Set write timeout
 
             // Add authentication interceptor if context is available
             if (context != null) {

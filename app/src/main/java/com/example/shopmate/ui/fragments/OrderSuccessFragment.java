@@ -16,6 +16,9 @@ import com.example.shopmate.data.model.Order;
 import com.example.shopmate.ui.activities.MainActivity;
 import com.google.android.material.button.MaterialButton;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class OrderSuccessFragment extends Fragment {
     
     private static final String ARG_ORDER_ID = "order_id";
@@ -44,7 +47,15 @@ public class OrderSuccessFragment extends Fragment {
         OrderSuccessFragment fragment = new OrderSuccessFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_ORDER_ID, order.getId());
-        args.putString(ARG_ORDER_DATE, order.getOrderDate());
+
+        // Format Date to String before putting into Bundle
+        String orderDateString = "";
+        if (order.getOrderDate() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            orderDateString = dateFormat.format(order.getOrderDate());
+        }
+        args.putString(ARG_ORDER_DATE, orderDateString);
+
         args.putString(ARG_PAYMENT_METHOD, order.getPaymentMethod());
         args.putBoolean(ARG_IS_VNPAY, false);
         fragment.setArguments(args);
@@ -125,7 +136,7 @@ public class OrderSuccessFragment extends Fragment {
             phoneNumberText.setText(phoneNumber.isEmpty() ? "N/A" : phoneNumber);
             billingAddressText.setText(billingAddress.isEmpty() ? "N/A" : billingAddress);
             orderStatusText.setText(orderStatus.isEmpty() ? "Processing" : orderStatus);
-            totalAmountText.setText(totalAmount.isEmpty() ? "N/A" : CurrencyUtils.formatVND(totalAmount));
+            totalAmountText.setText(totalAmount.isEmpty() ? "N/A" : formatTotalAmount(totalAmount));
 
             // Show transaction ID for VNPay
             if (isVNPay && !transactionId.isEmpty()) {
@@ -151,6 +162,15 @@ public class OrderSuccessFragment extends Fragment {
         return dateString != null ? dateString.substring(0, 10) : "";
     }
     
+    private String formatTotalAmount(String totalAmountString) {
+        try {
+            double amount = Double.parseDouble(totalAmountString);
+            return CurrencyUtils.formatVND(amount);
+        } catch (NumberFormatException e) {
+            return "N/A";
+        }
+    }
+
     private void setupClickListeners() {
         continueShoppingBtn.setOnClickListener(v -> {
             // Navigate back to home

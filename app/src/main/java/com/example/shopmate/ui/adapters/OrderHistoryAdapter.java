@@ -120,6 +120,19 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             }
         }
         
+        // Overload method for Date parameter
+        private String formatDate(Date date) {
+            if (date == null) {
+                return "N/A";
+            }
+            try {
+                SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+                return outputFormat.format(date);
+            } catch (Exception e) {
+                return "Invalid Date";
+            }
+        }
+
 
         
         private void setStatusColor(TextView textView, String status) {

@@ -14,6 +14,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.CartItem;
+import com.example.shopmate.util.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,15 @@ import java.util.List;
 public class CheckoutItemAdapter extends RecyclerView.Adapter<CheckoutItemAdapter.CheckoutItemViewHolder> {
 
     private List<CartItem> cartItems = new ArrayList<>();
+    private OnItemClickListener onItemClickListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(CartItem cartItem);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
 
     @NonNull
     @Override
@@ -35,6 +45,13 @@ public class CheckoutItemAdapter extends RecyclerView.Adapter<CheckoutItemAdapte
         CartItem item = cartItems.get(position);
         android.util.Log.d("CheckoutAdapter", "Binding item at position " + position + ": " + item.getProductName());
         holder.bind(item);
+        
+        // Set click listener for the item
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(item);
+            }
+        });
     }
 
     @Override
@@ -74,8 +91,9 @@ public class CheckoutItemAdapter extends RecyclerView.Adapter<CheckoutItemAdapte
             
             // Load product image with Glide
             if (item.getProductImage() != null && !item.getProductImage().isEmpty()) {
+                String fullImageUrl = ImageUtils.getFullImageUrl(item.getProductImage());
                 Glide.with(productImage.getContext())
-                    .load(item.getProductImage())
+                    .load(fullImageUrl)
                     .apply(new RequestOptions()
                         .transform(new RoundedCorners(12))
                         .placeholder(R.drawable.ic_launcher_foreground)

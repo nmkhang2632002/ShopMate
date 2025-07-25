@@ -75,4 +75,15 @@ public class CartViewModel extends AndroidViewModel {
         }
     }
 
+    public void addToCart(int productId, int quantity) {
+        int userId = authManager.getUserId();
+        if (userId != -1) {
+            cartRepository.addToCart(userId, productId, quantity).observeForever(updatedCart -> {
+                if (updatedCart != null) {
+                    cart.setValue(updatedCart);
+                }
+            });
+        }
+    }
+
 } 

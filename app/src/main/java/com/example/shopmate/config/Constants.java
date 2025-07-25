@@ -15,12 +15,12 @@ public class Constants {
 
     // API endpoints
     public static final String API_VERSION = "v1";
-    
+
     // Request timeout
     public static final int CONNECT_TIMEOUT = 30; // seconds
     public static final int READ_TIMEOUT = 30; // seconds
     public static final int WRITE_TIMEOUT = 30; // seconds
-    
+
     // ========== TIMEZONE CONFIGURATION ==========
     // Timezone chuẩn cho VNPay để tránh lệch múi giờ khi deploy
     public static final String VIETNAM_TIMEZONE_ID = "Asia/Ho_Chi_Minh";

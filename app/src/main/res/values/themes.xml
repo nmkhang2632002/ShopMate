@@ -41,6 +41,15 @@
 
     <style name="Theme.ShopMate" parent="Base.Theme.ShopMate" />
 
+    <!-- Admin Theme -->
+    <style name="Theme.ShopMate.Admin" parent="Base.Theme.ShopMate">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="android:statusBarColor">@color/primary_color</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
     <!-- Button Styles -->
     <style name="ShopMate.Button.Primary" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/primary</item>

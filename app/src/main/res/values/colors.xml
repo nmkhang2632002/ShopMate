@@ -70,4 +70,34 @@
     <color name="dark_background">#121212</color>
     <color name="dark_on_surface">#E0E0E0</color>
     <color name="dark_outline">#383838</color>
+
+    <!-- Admin Theme Colors -->
+    <color name="primary_color">@color/primary</color>
+    <color name="primary_light">#FFE8D6</color>
+    <color name="background_color">@color/surface_variant</color>
+    <color name="admin_text_primary">#1F2937</color>
+    <color name="admin_text_secondary">#6B7280</color>
+    <color name="error_color">@color/error</color>
+
+    <!-- Status Colors -->
+    <color name="status_pending">#FEF3C7</color>
+    <color name="status_pending_text">#92400E</color>
+    <color name="status_processing">#DBEAFE</color>
+    <color name="status_processing_text">#1E40AF</color>
+    <color name="status_shipped">#E0E7FF</color>
+    <color name="status_shipped_text">#3730A3</color>
+    <color name="status_delivered">#D1FAE5</color>
+    <color name="status_delivered_text">#065F46</color>
+    <color name="status_cancelled">#FEE2E2</color>
+    <color name="status_cancelled_text">#991B1B</color>
+
+    <!-- Stats Cards Colors -->
+    <color name="stats_card_1">#3B82F6</color>
+    <color name="stats_card_2">#10B981</color>
+    <color name="stats_card_3">#F59E0B</color>
+
+    <!-- Chip and Component Colors -->
+    <color name="chip_background">#F3F4F6</color>
+    <color name="bottom_nav_selected">#FF6B35</color>
+    <color name="bottom_nav_unselected">#9CA3AF</color>
 </resources>
