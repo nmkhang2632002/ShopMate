@@ -14,8 +14,8 @@ public interface OrderApi {
     // User endpoints
     @POST("orders/{userId}/create")
     Call<ApiResponse<Order>> createOrder(
-        @Path("userId") int userId,
-        @Body CreateOrderRequest request
+            @Path("userId") int userId,
+            @Body CreateOrderRequest request
     );
 
     @GET("orders/{userId}")
@@ -36,30 +36,30 @@ public interface OrderApi {
     // Update order status to failed - API: PUT /orders/cod/{orderId}/failed
     @PUT("orders/cod/{orderId}/failed")
     Call<ApiResponse<Order>> updateOrderToFailed(
-        @Path("orderId") int orderId,
-        @Query("reason") String reason
+            @Path("orderId") int orderId,
+            @Query("reason") String reason
     );
 
     // Admin endpoints for order management
     // Get all orders - API: GET /orders (without admin prefix)
     @GET("orders")
     Call<ApiResponse<List<Order>>> getAllOrders(
-        @Query("page") int page,
-        @Query("size") int size
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     // Search orders - API: GET /orders/search
     @GET("orders/search")
     Call<ApiResponse<List<Order>>> searchOrders(
-        @Query("query") String query,
-        @Query("status") String status,
-        @Query("page") int page,
-        @Query("size") int size
+            @Query("query") String query,
+            @Query("status") String status,
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @PUT("admin/orders/{orderId}/status")
     Call<ApiResponse<Order>> updateOrderStatus(
-        @Path("orderId") int orderId,
-        @Body UpdateOrderStatusRequest request
+            @Path("orderId") int orderId,
+            @Body UpdateOrderStatusRequest request
     );
 }
