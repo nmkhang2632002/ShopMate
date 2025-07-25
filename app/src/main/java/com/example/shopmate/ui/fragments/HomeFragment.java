@@ -76,6 +76,7 @@ public class HomeFragment extends Fragment implements
     private TextInputEditText searchEditText;
     private ImageView filterIcon;
     private TextView seeAllProducts;
+    private TextView seeAllCategories;
     private Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
     private boolean isSearchMode = false;
@@ -98,6 +99,7 @@ public class HomeFragment extends Fragment implements
         searchEditText = view.findViewById(R.id.searchEditText);
         filterIcon = view.findViewById(R.id.filterIcon);
         seeAllProducts = view.findViewById(R.id.seeAllProducts);
+        seeAllCategories = view.findViewById(R.id.seeAllCategories);
         
         return view;
     }
@@ -111,6 +113,7 @@ public class HomeFragment extends Fragment implements
         setupViewModel();
         setupSearchFunctionality();
         setupSeeAllButton();
+        setupSeeAllCategoriesButton();
         observeViewModel();
         setupCartNavigation();
     }
@@ -253,6 +256,20 @@ public class HomeFragment extends Fragment implements
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.flFragment, allProductsFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+    }
+
+    private void setupSeeAllCategoriesButton() {
+        seeAllCategories.setOnClickListener(v -> {
+            // Navigate to all categories screen
+            if (getActivity() != null) {
+                AllCategoriesFragment allCategoriesFragment = new AllCategoriesFragment();
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flFragment, allCategoriesFragment)
                         .addToBackStack(null)
                         .commit();
             }

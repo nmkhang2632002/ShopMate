@@ -68,12 +68,6 @@ public class ChatViewModel extends AndroidViewModel {
         isSendingMessage.setValue(true);
         chatRepository.sendMessage(message.trim(), chatWithAdmin);
         isSendingMessage.setValue(false);
-        
-        // Reload chat history after a short delay to get the AI/admin response
-        new android.os.Handler().postDelayed(
-            () -> loadChatHistory(),
-            1000  // 1 second delay
-        );
     }
     
     public void switchToAI() {
