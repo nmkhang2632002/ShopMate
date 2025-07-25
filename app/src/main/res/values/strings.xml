@@ -17,6 +17,27 @@
     <string name="cart_badge_content_description">Cart items count</string>
     <string name="logout">Logout</string>
     
+    <!-- Map Page -->
+    <string name="map">Map</string>
+    <string name="my_location">My Location</string>
+    <string name="location_permission_denied">Location permission denied</string>
+    <string name="location_permission_required">Location permission is required to show your current location</string>
+    <string name="enable_location">Please enable location services</string>
+    <string name="store_locations">Store Locations</string>
+    <string name="get_directions">Get Directions</string>
+    <string name="get_directions_from_current">Get Directions from Current Location</string>
+    <string name="loading_stores">Loading store locations…</string>
+    <string name="error_loading_stores">Error loading store locations</string>
+    <string name="select_store">Select a store to view details</string>
+    <string name="no_stores_found">No stores found</string>
+    <string name="directions_to_store">Directions to %1$s</string>
+    <string name="open_in_maps">Open in Google Maps</string>
+    <string name="open_in_maps_error">Could not open Google Maps</string>
+    <string name="settings">Settings</string>
+    <string name="search_location">Search location…</string>
+    <string name="clear_search">Clear search</string>
+    <string name="location_not_found">Location not found</string>
+    
     <!-- Category Products Page -->
     <string name="back">Back</string>
     <string name="sort">Sort</string>

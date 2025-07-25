@@ -37,18 +37,32 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    
     // OkHttp
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    
     // ViewPager2 for banners
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    
     // Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+    
+    // OpenStreetMap
+    implementation 'org.osmdroid:osmdroid-android:6.1.16'
+    implementation 'org.osmdroid:osmdroid-wms:6.1.16'
+    implementation 'org.osmdroid:osmdroid-mapsforge:6.1.16'
+    
+    // Location services
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    
     // SwipeRefreshLayout for admin fragments
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
     // Additional dependencies for admin system
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'

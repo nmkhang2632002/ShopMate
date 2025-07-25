@@ -15,6 +15,7 @@ import com.example.shopmate.util.AuthManager;
 import com.example.shopmate.ui.fragments.CartFragment;
 import com.example.shopmate.ui.fragments.ChatFragment;
 import com.example.shopmate.ui.fragments.HomeFragment;
+import com.example.shopmate.ui.fragments.MapFragment;
 import com.example.shopmate.ui.fragments.ProfileFragment;
 import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
@@ -61,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 setCurrentFragment(new HomeFragment());
-            } else if (id == R.id.nav_search) {
-                setCurrentFragment(new HomeFragment()); // Replace with SearchFragment when available
+            } else if (id == R.id.nav_map) {
+                setCurrentFragment(new MapFragment());
             } else if (id == R.id.nav_cart) {
                 setCurrentFragment(new CartFragment());
             } else if (id == R.id.nav_chat) {
@@ -149,6 +150,21 @@ public class MainActivity extends AppCompatActivity {
         
         // Update bottom navigation
         bottomNavigationView.setSelectedItemId(R.id.nav_chat);
+    }
+    
+    public void navigateToMap() {
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Set map fragment
+        MapFragment mapFragment = new MapFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, mapFragment)
+                .commit();
+        
+        // Update bottom navigation
+        bottomNavigationView.setSelectedItemId(R.id.nav_map);
     }
 
     private void handlePaymentResultNavigation() {
