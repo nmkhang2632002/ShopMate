@@ -100,14 +100,15 @@ public class AdminCategoryDialogFragment extends DialogFragment {
             // Update existing category
             newCategory = new Category(
                 category.getId(),
-                categoryName
+                categoryName,
+                category.getDescription(), // Giữ nguyên description cũ
+                category.getIcon() // Giữ nguyên icon cũ
             );
         } else {
-            // Create new category
-            newCategory = new Category(
-                0, // ID will be assigned by server
-                categoryName
-            );
+            // Create new category - không gửi ID, chỉ gửi name
+            newCategory = new Category();
+            newCategory.setCategoryName(categoryName);
+            // Không set description và icon, để server tự xử lý
         }
 
         if (listener != null) {
@@ -127,8 +128,11 @@ public class AdminCategoryDialogFragment extends DialogFragment {
         if (categoryName.isEmpty()) {
             tilCategoryName.setError("Category name is required");
             isValid = false;
-        } else if (categoryName.length() < 2) {
-            tilCategoryName.setError("Category name must be at least 2 characters");
+        } else if (categoryName.length() < 3) {
+            tilCategoryName.setError("Category name must be at least 3 characters");
+            isValid = false;
+        } else if (categoryName.length() > 50) {
+            tilCategoryName.setError("Category name must not exceed 50 characters");
             isValid = false;
         }
 

@@ -19,7 +19,7 @@ public interface CategoryApi {
 
     // Admin endpoints for category management
     // POST /admin/categories
-    @POST("admin/categories")
+    @POST("categories")
     Call<ApiResponse<Category>> createCategory(@Body Category category);
 
     // PUT /categories/{id}

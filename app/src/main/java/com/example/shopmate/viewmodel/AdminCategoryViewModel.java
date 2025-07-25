@@ -135,14 +135,56 @@ public class AdminCategoryViewModel extends ViewModel {
                             apiResponse.getMessage() : "Failed to add category");
                     }
                 } else {
-                    errorMessage.setValue("Failed to add category: " + response.code());
+                    // Xử lý lỗi HTTP chi tiết
+                    String errorMsg = "Failed to add category";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            android.util.Log.e("AdminCategoryVM", "Error body: " + errorBody);
+                            android.util.Log.e("AdminCategoryVM", "Response code: " + response.code());
+
+                            if (response.code() == 400) {
+                                if (errorBody.contains("already exists") || errorBody.contains("duplicate")) {
+                                    errorMsg = "Category name already exists. Please choose a different name.";
+                                } else if (errorBody.contains("validation") || errorBody.contains("invalid")) {
+                                    errorMsg = "Invalid category data. Name must be 3-50 characters.";
+                                } else if (errorBody.contains("required")) {
+                                    errorMsg = "Missing required fields.";
+                                } else {
+                                    errorMsg = "Invalid category data: " + errorBody;
+                                }
+                            } else if (response.code() == 401) {
+                                errorMsg = "Authentication required. Please login again.";
+                            } else if (response.code() == 403) {
+                                errorMsg = "You don't have permission to add categories.";
+                            } else if (response.code() == 409) {
+                                errorMsg = "Category name already exists.";
+                            } else {
+                                errorMsg = "Server error (" + response.code() + "): " + errorBody;
+                            }
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("AdminCategoryVM", "Error parsing error body", e);
+                        errorMsg = "Failed to add category: " + response.code();
+                    }
+                    errorMessage.setValue(errorMsg);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<Category>> call, Throwable t) {
                 isLoading.setValue(false);
-                errorMessage.setValue("Failed to add category: " + t.getMessage());
+                String errorMsg = "Network error";
+                if (t.getMessage() != null) {
+                    if (t.getMessage().contains("timeout")) {
+                        errorMsg = "Connection timeout. Please try again.";
+                    } else if (t.getMessage().contains("Unable to resolve host")) {
+                        errorMsg = "No internet connection.";
+                    } else {
+                        errorMsg = "Network error: " + t.getMessage();
+                    }
+                }
+                errorMessage.setValue(errorMsg);
             }
         });
     }

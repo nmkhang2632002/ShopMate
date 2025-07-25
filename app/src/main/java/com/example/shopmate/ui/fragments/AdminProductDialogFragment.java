@@ -274,7 +274,7 @@ public class AdminProductDialogFragment extends DialogFragment {
         Product newProduct;
         if (product != null) {
             // Update existing product
-            newProduct =  new Product(
+            newProduct = new Product(
                 product.getId(),
                 productName,
                 briefDescription,
@@ -286,18 +286,16 @@ public class AdminProductDialogFragment extends DialogFragment {
                 categoryName
             );
         } else {
-            // Create new product
-            newProduct = new Product(
-                0, // ID will be assigned by server
-                productName,
-                briefDescription,
-                fullDescription,
-                technicalSpecifications,
-                price,
-                finalImageUrl,
-                categoryId,
-                categoryName
-            );
+            // Create new product - chỉ cần 7 fields theo API spec
+            newProduct = new Product();
+            newProduct.setProductName(productName);
+            newProduct.setBriefDescription(briefDescription);
+            newProduct.setFullDescription(fullDescription);
+            newProduct.setTechnicalSpecifications(technicalSpecifications);
+            newProduct.setPrice(price);
+            newProduct.setImageURL(finalImageUrl);
+            newProduct.setCategoryID(categoryId);
+            // categoryName và id sẽ được server assign
         }
 
         if (listener != null) {
