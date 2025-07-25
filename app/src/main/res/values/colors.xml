@@ -61,6 +61,7 @@
     <color name="green">#10B981</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="orange">#FF5722</color>
 
     <!-- Dark Theme Colors -->
     <color name="dark_primary">#FF8A65</color>

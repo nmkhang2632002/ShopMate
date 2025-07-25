@@ -47,4 +47,12 @@ dependencies {
     // Glide for image loading
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+    
+    // OpenStreetMap
+    implementation 'org.osmdroid:osmdroid-android:6.1.16'
+    implementation 'org.osmdroid:osmdroid-wms:6.1.16'
+    implementation 'org.osmdroid:osmdroid-mapsforge:6.1.16'
+    
+    // Location services
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 }

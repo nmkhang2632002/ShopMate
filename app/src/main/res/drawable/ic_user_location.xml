@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Yellow person icon -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12c0,5.52 4.48,10 10,10s10,-4.48 10,-10C22,6.48 17.52,2 12,2z" />
+    
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M12,12m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0"
+        android:strokeWidth="2"
+        android:strokeColor="#FFEB3B" />
+    
+    <!-- Person silhouette -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12,6c1.1,0 2,0.9 2,2s-0.9,2 -2,2s-2,-0.9 -2,-2S10.9,6 12,6z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12,15c-2.7,0 -5.8,1.29 -6,2.01V18h12v-0.99C17.8,16.29 14.7,15 12,15z" />
+</vector> 
