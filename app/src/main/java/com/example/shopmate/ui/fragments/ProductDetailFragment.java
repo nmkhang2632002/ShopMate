@@ -44,6 +44,7 @@ public class ProductDetailFragment extends Fragment {
     private TextView productPriceText;
     private TextView productDescription;
     private TextView productCategory;
+    private TextView productSpecifications;
     private TextView quantityText;
     private MaterialButton decreaseQuantityBtn;
     private MaterialButton increaseQuantityBtn;
@@ -122,6 +123,7 @@ public class ProductDetailFragment extends Fragment {
         productPriceText = view.findViewById(R.id.productPrice);
         productDescription = view.findViewById(R.id.productDescription);
         productCategory = view.findViewById(R.id.productCategory);
+        productSpecifications = view.findViewById(R.id.productSpecifications);
         quantityText = view.findViewById(R.id.quantityText);
         decreaseQuantityBtn = view.findViewById(R.id.decreaseQuantityBtn);
         increaseQuantityBtn = view.findViewById(R.id.increaseQuantityBtn);
@@ -273,6 +275,16 @@ public class ProductDetailFragment extends Fragment {
         
         // Product category
         productCategory.setText(product.getCategoryName() != null ? product.getCategoryName() : "N/A");
+        
+        // Technical specifications
+        String technicalSpecs = product.getTechnicalSpecifications();
+        if (technicalSpecs != null && !technicalSpecs.trim().isEmpty()) {
+            productSpecifications.setText(technicalSpecs);
+            productSpecifications.setVisibility(View.VISIBLE);
+        } else {
+            productSpecifications.setText("No specifications available");
+            productSpecifications.setVisibility(View.VISIBLE);
+        }
         
         // Update add to cart button state
         addToCartBtn.setEnabled(true);
