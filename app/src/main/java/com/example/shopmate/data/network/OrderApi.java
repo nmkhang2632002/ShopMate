@@ -18,7 +18,7 @@ public interface OrderApi {
         @Body CreateOrderRequest request
     );
 
-    @GET("orders/user/{userId}")
+    @GET("orders/{userId}")
     Call<ApiResponse<List<Order>>> getOrdersByUserId(@Path("userId") int userId);
 
     // Get order by ID - API: GET /orders/{orderId}

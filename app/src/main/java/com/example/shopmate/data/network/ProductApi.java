@@ -32,12 +32,12 @@ public interface ProductApi {
     // Search products with full parameters (for compatibility)
     @GET("products/search")
     Call<ApiResponse<ProductSearchResponse>> searchProducts(
-            @Query("productName") String productName,
-            @Query("category") String category,
-            @Query("priceRange") String priceRange,
-            @Query("sortBy") String sortBy,
-            @Query("page") int page,
-            @Query("size") int size
+        @Query("productName") String productName,
+        @Query("category") String category,
+        @Query("priceRange") String priceRange,
+        @Query("sortBy") String sortBy,
+        @Query("page") int page,
+        @Query("size") int size
     );
 
     // Admin endpoints - Create new product
