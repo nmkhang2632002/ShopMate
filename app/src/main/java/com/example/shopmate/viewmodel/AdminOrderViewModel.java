@@ -439,4 +439,45 @@ public class AdminOrderViewModel extends ViewModel {
             }
         });
     }
+
+    public void updatePaymentStatus(int paymentId, String newStatus) {
+        isLoading.setValue(true);
+        
+        // Create PaymentApi instance
+        com.example.shopmate.data.network.PaymentApi paymentApi = 
+            RetrofitClient.getInstance().create(com.example.shopmate.data.network.PaymentApi.class);
+        
+        // Create request body
+        com.example.shopmate.data.model.UpdatePaymentStatusRequest request = 
+            new com.example.shopmate.data.model.UpdatePaymentStatusRequest(newStatus);
+        
+        Call<ApiResponse<com.example.shopmate.data.model.Payment>> call = 
+            paymentApi.updatePaymentStatus(paymentId, request);
+        
+        call.enqueue(new Callback<ApiResponse<com.example.shopmate.data.model.Payment>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<com.example.shopmate.data.model.Payment>> call, 
+                                 Response<ApiResponse<com.example.shopmate.data.model.Payment>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().getStatus() == 1000) {
+                        operationSuccess.setValue(true);
+                        // Reload orders to refresh payment status
+                        loadOrders();
+                    } else {
+                        errorMessage.setValue(response.body().getMessage());
+                    }
+                } else {
+                    errorMessage.setValue("Failed to update payment status");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<com.example.shopmate.data.model.Payment>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Network error: " + t.getMessage());
+            }
+        });
+    }
 }

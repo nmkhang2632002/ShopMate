@@ -26,6 +26,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
     public interface OnOrderActionListener {
         void onViewOrderDetails(Order order);
         void onUpdateOrderStatus(Order order);
+        void onUpdatePaymentStatus(Order order);
     }
 
     public AdminOrderAdapter(List<Order> orders, OnOrderActionListener listener) {
@@ -67,6 +68,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
         private TextView paymentStatus;
         private Chip statusChip;
         private MaterialButton btnViewDetails;
+        private MaterialButton btnUpdatePayment;
         private MaterialButton btnUpdateStatus;
 
         public OrderViewHolder(@NonNull View itemView) {
@@ -81,6 +83,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
             paymentStatus = itemView.findViewById(R.id.paymentStatus);
             statusChip = itemView.findViewById(R.id.statusChip);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+            btnUpdatePayment = itemView.findViewById(R.id.btnUpdatePayment);
             btnUpdateStatus = itemView.findViewById(R.id.btnUpdateStatus);
         }
 
@@ -94,11 +97,21 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
             // Set payment status
             if (order.getPayments() != null && !order.getPayments().isEmpty()) {
                 Order.Payment payment = order.getPayments().get(0);
-                paymentStatus.setText(payment.getPaymentStatus());
-                setPaymentStatusColor(paymentStatus, payment.getPaymentStatus());
+                String paymentStatusValue = payment.getPaymentStatus();
+                paymentStatus.setText(paymentStatusValue);
+                setPaymentStatusColor(paymentStatus, paymentStatusValue);
+                
+                // Disable payment update button if status is final
+                boolean isPaymentFinal = "Paid".equalsIgnoreCase(paymentStatusValue) || 
+                                       "Cancelled".equalsIgnoreCase(paymentStatusValue);
+                btnUpdatePayment.setEnabled(!isPaymentFinal);
+                btnUpdatePayment.setAlpha(isPaymentFinal ? 0.5f : 1.0f);
             } else {
                 paymentStatus.setText("No Payment");
                 paymentStatus.setTextColor(itemView.getContext().getColor(R.color.text_secondary));
+                // Enable button when no payment (can create payment)
+                btnUpdatePayment.setEnabled(false);
+                btnUpdatePayment.setAlpha(0.5f);
             }
 
             // Set status chip
@@ -109,6 +122,12 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
             btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onViewOrderDetails(order);
+                }
+            });
+
+            btnUpdatePayment.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onUpdatePaymentStatus(order);
                 }
             });
 

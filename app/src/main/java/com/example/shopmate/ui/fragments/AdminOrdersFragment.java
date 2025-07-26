@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +29,7 @@ import com.example.shopmate.ui.fragments.OrderDetailFragment;
 import com.example.shopmate.viewmodel.AdminOrderViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -232,7 +235,7 @@ public class AdminOrdersFragment extends Fragment implements
 
         viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Order status updated successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Status updated successfully", Toast.LENGTH_SHORT).show();
                 performSearch(searchEditText.getText().toString().trim());
             }
         });
@@ -265,11 +268,71 @@ public class AdminOrdersFragment extends Fragment implements
         showUpdateStatusDialog(order);
     }
 
+    @Override
+    public void onUpdatePaymentStatus(Order order) {
+        showUpdatePaymentStatusDialog(order);
+    }
+
     private void showUpdateStatusDialog(Order order) {
         AdminOrderStatusDialogFragment dialog = AdminOrderStatusDialogFragment.newInstance(order);
         dialog.setOnStatusUpdatedListener((orderId, newStatus, note) ->
             viewModel.updateOrderStatus(orderId, newStatus));
         dialog.show(getParentFragmentManager(), "UpdateOrderStatusDialog");
+    }
+
+    private void showUpdatePaymentStatusDialog(Order order) {
+        if (order.getPayments() == null || order.getPayments().isEmpty()) {
+            Toast.makeText(getContext(), "No payment found for this order", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get payment info from the first payment
+        Order.Payment payment = order.getPayments().get(0);
+        int paymentId = payment.getId();
+        String currentStatus = payment.getPaymentStatus();
+        
+        // Check if payment status is already final
+        if ("Paid".equalsIgnoreCase(currentStatus) || "Cancelled".equalsIgnoreCase(currentStatus)) {
+            Toast.makeText(getContext(), "Payment status '" + currentStatus + "' cannot be changed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Update Payment Status")
+                .setMessage("Order #" + order.getId() + 
+                           "\nPayment ID: " + paymentId +
+                           "\nCurrent Status: " + currentStatus +
+                           "\n\nChoose new payment status:")
+                .setPositiveButton("Mark as Paid", (dialog, which) -> {
+                    showPaymentUpdateConfirmation(paymentId, "Paid", "Paid - Payment completed successfully", order);
+                })
+                .setNegativeButton("Mark as Cancelled", (dialog, which) -> {
+                    showPaymentUpdateConfirmation(paymentId, "Cancelled", "Cancelled - Payment was cancelled", order);
+                })
+                .setNeutralButton("Cancel", null)
+                .show();
+    }
+
+    private void showPaymentUpdateConfirmation(int paymentId, String newStatus, String statusDescription, Order order) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Confirm Payment Update")
+                .setMessage("Are you sure you want to update payment status to:\n\n" + 
+                           statusDescription + "\n\n" +
+                           "Order #" + order.getId() + 
+                           "\nPayment ID: " + paymentId)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    updatePaymentStatus(paymentId, newStatus);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void updatePaymentStatus(int paymentId, String newStatus) {
+        // Show progress
+        Toast.makeText(getContext(), "Updating payment status to " + newStatus + "...", Toast.LENGTH_SHORT).show();
+        
+        // Call payment API to update status
+        viewModel.updatePaymentStatus(paymentId, newStatus);
     }
 
     @Override
