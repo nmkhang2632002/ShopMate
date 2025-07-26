@@ -67,7 +67,17 @@ public class ChatViewModel extends AndroidViewModel {
         
         isSendingMessage.setValue(true);
         chatRepository.sendMessage(message.trim(), chatWithAdmin);
-        isSendingMessage.setValue(false);
+        
+        // Delay để đảm bảo message được gửi xong trước khi refresh
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000); // Wait 1 second
+                loadChatHistory();
+                isSendingMessage.postValue(false);
+            } catch (InterruptedException e) {
+                isSendingMessage.postValue(false);
+            }
+        }).start();
     }
     
     public void switchToAI() {
@@ -76,5 +86,9 @@ public class ChatViewModel extends AndroidViewModel {
     
     public void switchToAdmin() {
         chatWithAdmin = true;
+    }
+    
+    public void refreshChatHistory() {
+        loadChatHistory();
     }
 } 

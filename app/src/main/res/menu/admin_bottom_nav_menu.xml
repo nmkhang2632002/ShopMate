@@ -16,6 +16,12 @@
         android:icon="@drawable/ic_categories"
         android:title="Categories" />
 
+        
+    <item
+        android:id="@+id/nav_admin_chat"
+        android:icon="@drawable/ic_chat"
+        android:title="Chat" />
+
     <item
         android:id="@+id/nav_admin_profile"
         android:icon="@drawable/ic_admin_profile"

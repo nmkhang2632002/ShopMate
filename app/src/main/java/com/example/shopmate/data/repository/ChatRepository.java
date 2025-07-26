@@ -98,7 +98,7 @@ public class ChatRepository {
             }
         });
     }
-
+   
     public void sendMessage(String messageText, boolean toAdmin) {
         int userId = AuthManager.getInstance(context).getUserId();
         int receiverId = toAdmin ? ADMIN_ID : AI_ID;
