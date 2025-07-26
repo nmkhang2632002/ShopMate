@@ -65,6 +65,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         private final TextView productName;
         private final TextView productDescription;
         private final TextView productPrice;
+        private final TextView productSold;
         
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +73,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productName = itemView.findViewById(R.id.productName);
             productDescription = itemView.findViewById(R.id.productDescription);
             productPrice = itemView.findViewById(R.id.productPrice);
+            productSold = itemView.findViewById(R.id.productSold);
             
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -87,6 +89,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productName.setText(product.getProductName());
             productDescription.setText(product.getBriefDescription());
             productPrice.setText(product.getFormattedPrice());
+            
+            // Display total ordered (sold quantity)
+            int totalSold = product.getTotalOrdered();
+            productSold.setText("Sold: " + totalSold);
             
             String fullImageUrl = ImageUtils.getFullImageUrl(product.getImageURL());
             Glide.with(itemView.getContext())

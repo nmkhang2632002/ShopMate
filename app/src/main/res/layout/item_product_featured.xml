@@ -61,6 +61,16 @@
                 android:textColor="@color/price_color"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/productSold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Sold: 0"
+                android:textAppearance="?attr/textAppearanceCaption"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView> 

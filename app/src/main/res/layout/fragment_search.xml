@@ -54,7 +54,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:background="@android:color/transparent"
-                        android:hint="Tìm kiếm sản phẩm..."
+                        android:hint="Search by product name..."
                         android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:maxLines="1"

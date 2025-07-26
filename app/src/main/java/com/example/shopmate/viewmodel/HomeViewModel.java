@@ -120,6 +120,8 @@ public class HomeViewModel extends ViewModel {
                     product.setImageURL(stats.getProductImage());
                     product.setPrice(stats.getPrice());
                     product.setCategoryName(stats.getCategory());
+                    // Set totalOrdered from API response
+                    product.setTotalOrdered(stats.getTotalOrdered());
                     products.add(product);
                 }
                 featuredProducts.setValue(products);
