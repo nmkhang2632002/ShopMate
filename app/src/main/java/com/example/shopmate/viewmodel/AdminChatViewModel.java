@@ -125,51 +125,57 @@ public class AdminChatViewModel extends AndroidViewModel {
             return;
         }
         
-        // Admin ID is 40 (as per your system)
-        ChatMessage message = new ChatMessage(40, customer.getId(), messageText);
-        
-        // Optimistically add message to UI
-        List<ChatMessage> currentMessages = chatMessages.getValue();
-        if (currentMessages != null) {
-            List<ChatMessage> updatedMessages = new ArrayList<>(currentMessages);
-            updatedMessages.add(message);
-            chatMessages.setValue(updatedMessages);
-        }
-        
-        // Use the standard send message endpoint
-        chatApi.sendMessage(message).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "Message sent successfully, refreshing chat history");
-                    // Delay một chút trước khi refresh để đảm bảo server đã xử lý xong
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(1000); // Wait 1 second
-                            if (getApplication() != null) {
-                                ((AndroidViewModel) AdminChatViewModel.this).getApplication().getMainExecutor().execute(() -> {
+        try {
+            // Admin ID is 40 (as per your system)
+            ChatMessage message = new ChatMessage(40, customer.getId(), messageText);
+            
+            // Optimistically add message to UI
+            List<ChatMessage> currentMessages = chatMessages.getValue();
+            if (currentMessages != null) {
+                List<ChatMessage> updatedMessages = new ArrayList<>(currentMessages);
+                updatedMessages.add(message);
+                chatMessages.setValue(updatedMessages);
+            }
+            
+            // Use the standard send message endpoint
+            chatApi.sendMessage(message).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Message sent successfully, refreshing chat history");
+                        // Delay một chút trước khi refresh để đảm bảo server đã xử lý xong
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(1000); // Wait 1 second
+                                // Sử dụng Handler thay vì getMainExecutor() để tương thích với API level thấp hơn
+                                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                                     loadChatHistory(customer.getId());
                                 });
+                            } catch (InterruptedException e) {
+                                // Handle interruption
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error in delayed refresh", e);
                             }
-                        } catch (InterruptedException e) {
-                            // Handle interruption
-                        }
-                    }).start();
-                } else {
-                    Log.e(TAG, "Failed to send message: " + response.code() + " " + response.message());
-                    errorMessage.setValue("Failed to send message");
+                        }).start();
+                    } else {
+                        Log.e(TAG, "Failed to send message: " + response.code() + " " + response.message());
+                        errorMessage.setValue("Failed to send message");
+                        // Refresh chat history để lấy trạng thái chính xác
+                        loadChatHistory(customer.getId());
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e(TAG, "Network error sending message", t);
+                    errorMessage.setValue("Network error: " + t.getMessage());
                     // Refresh chat history để lấy trạng thái chính xác
                     loadChatHistory(customer.getId());
                 }
-            }
-            
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "Network error sending message", t);
-                errorMessage.setValue("Network error: " + t.getMessage());
-                // Refresh chat history để lấy trạng thái chính xác
-                loadChatHistory(customer.getId());
-            }
-        });
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error in sendMessage", e);
+            errorMessage.setValue("Error sending message: " + e.getMessage());
+        }
     }
 } 

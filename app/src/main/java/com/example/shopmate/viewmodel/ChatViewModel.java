@@ -65,19 +65,34 @@ public class ChatViewModel extends AndroidViewModel {
             return;
         }
         
-        isSendingMessage.setValue(true);
-        chatRepository.sendMessage(message.trim(), chatWithAdmin);
-        
-        // Delay để đảm bảo message được gửi xong trước khi refresh
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000); // Wait 1 second
-                loadChatHistory();
-                isSendingMessage.postValue(false);
-            } catch (InterruptedException e) {
-                isSendingMessage.postValue(false);
-            }
-        }).start();
+        try {
+            isSendingMessage.setValue(true);
+            chatRepository.sendMessage(message.trim(), chatWithAdmin);
+            
+            // Delay để đảm bảo message được gửi xong trước khi refresh
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000); // Wait 1 second
+                    // Sử dụng Handler để chuyển về main thread một cách an toàn
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        loadChatHistory();
+                        isSendingMessage.setValue(false);
+                    });
+                } catch (InterruptedException e) {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        isSendingMessage.setValue(false);
+                    });
+                } catch (Exception e) {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        isSendingMessage.setValue(false);
+                    });
+                }
+            }).start();
+        } catch (Exception e) {
+            isSendingMessage.setValue(false);
+            // Log lỗi để debug
+            android.util.Log.e("ChatViewModel", "Error sending message", e);
+        }
     }
     
     public void switchToAI() {
