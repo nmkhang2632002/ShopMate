@@ -23,6 +23,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Order;
 import com.example.shopmate.ui.adapters.AdminOrderAdapter;
+import com.example.shopmate.ui.fragments.OrderDetailFragment;
 import com.example.shopmate.viewmodel.AdminOrderViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -250,8 +251,13 @@ public class AdminOrdersFragment extends Fragment implements
 
     @Override
     public void onViewOrderDetails(Order order) {
-        // Navigate to order detail view
-        Toast.makeText(getContext(), "View order #" + order.getId(), Toast.LENGTH_SHORT).show();
+        // Navigate to order detail view - sử dụng admin version để ẩn buy again button
+        OrderDetailFragment detailFragment = OrderDetailFragment.newInstanceForAdmin(order.getId());
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
