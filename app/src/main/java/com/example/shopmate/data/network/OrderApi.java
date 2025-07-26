@@ -29,17 +29,6 @@ public interface OrderApi {
     @GET("orders/detail/{orderId}")
     Call<ApiResponse<Order>> getOrderDetail(@Path("orderId") int orderId);
 
-    // Update order status to delivered - API: PUT /orders/cod/{orderId}/delivered
-    @PUT("orders/cod/{orderId}/delivered")
-    Call<ApiResponse<Order>> updateOrderToDelivered(@Path("orderId") int orderId);
-
-    // Update order status to failed - API: PUT /orders/cod/{orderId}/failed
-    @PUT("orders/cod/{orderId}/failed")
-    Call<ApiResponse<Order>> updateOrderToFailed(
-            @Path("orderId") int orderId,
-            @Query("reason") String reason
-    );
-
     // Admin endpoints for order management
     // Get all orders - API: GET /orders (without admin prefix)
     @GET("orders")
@@ -57,6 +46,23 @@ public interface OrderApi {
             @Query("size") int size
     );
 
+    // Admin endpoints for order status updates - using SalesApp's actual endpoints
+    @PUT("orders/{orderId}/processing")
+    Call<ApiResponse<Order>> updateOrderToProcessing(@Path("orderId") int orderId);
+
+    @PUT("orders/{orderId}/delivered") 
+    Call<ApiResponse<Order>> updateOrderToDelivered(@Path("orderId") int orderId);
+
+    @PUT("orders/{orderId}/cancelled")
+    Call<ApiResponse<Order>> updateOrderToCancelled(@Path("orderId") int orderId);
+
+    @PUT("orders/{orderId}/failed")
+    Call<ApiResponse<Order>> updateOrderToFailed(
+            @Path("orderId") int orderId,
+            @Query("reason") String reason
+    );
+
+    // Legacy endpoint with request body (keep for compatibility)
     @PUT("admin/orders/{orderId}/status")
     Call<ApiResponse<Order>> updateOrderStatus(
             @Path("orderId") int orderId,

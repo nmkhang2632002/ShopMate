@@ -51,6 +51,9 @@ public class Order implements Serializable {
     
     @SerializedName("orderItems")
     private List<OrderDetail> orderItems;
+    
+    @SerializedName("cartItems")
+    private List<CartItem> cartItems;
 
     public Order() {}
 
@@ -70,6 +73,7 @@ public class Order implements Serializable {
     public String getNote() { return note; }
     public List<Payment> getPayments() { return payments; }
     public List<OrderDetail> getOrderItems() { return orderItems; }
+    public List<CartItem> getCartItems() { return cartItems; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -87,6 +91,7 @@ public class Order implements Serializable {
     public void setNote(String note) { this.note = note; }
     public void setPayments(List<Payment> payments) { this.payments = payments; }
     public void setOrderItems(List<OrderDetail> orderItems) { this.orderItems = orderItems; }
+    public void setCartItems(List<CartItem> cartItems) { this.cartItems = cartItems; }
 
     // Inner Payment class
     public static class Payment {

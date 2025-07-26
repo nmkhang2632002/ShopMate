@@ -43,6 +43,7 @@ public class OrderDetailFragment extends Fragment {
     private static final String ARG_ORDER_ID = "order_id";
     
     private int orderId;
+    private boolean isAdminView = false; // Flag để phân biệt admin/customer view
     private VNPayApi vnPayApi;
     private CheckoutItemAdapter orderItemAdapter;
     private CartViewModel cartViewModel;
@@ -74,11 +75,22 @@ public class OrderDetailFragment extends Fragment {
         return fragment;
     }
     
+    // Method cho admin view - ẩn buy again button và các chức năng customer
+    public static OrderDetailFragment newInstanceForAdmin(int orderId) {
+        OrderDetailFragment fragment = new OrderDetailFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_ORDER_ID, orderId);
+        args.putBoolean("IS_ADMIN_VIEW", true);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             orderId = getArguments().getInt(ARG_ORDER_ID);
+            isAdminView = getArguments().getBoolean("IS_ADMIN_VIEW", false);
         }
     }
     
@@ -89,7 +101,17 @@ public class OrderDetailFragment extends Fragment {
         initViews(view);
         setupToolbar();
         setupRecyclerView();
-        setupBuyAgainButton();
+        
+        // Chỉ setup buy again button nếu không phải admin view
+        if (!isAdminView) {
+            setupBuyAgainButton();
+        } else {
+            // Ẩn buy again button cho admin
+            if (buyAgainButton != null) {
+                buyAgainButton.setVisibility(View.GONE);
+            }
+        }
+        
         loadOrderDetail();
         
         return view;

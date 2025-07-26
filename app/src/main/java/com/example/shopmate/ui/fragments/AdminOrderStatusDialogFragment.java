@@ -32,8 +32,36 @@ public class AdminOrderStatusDialogFragment extends DialogFragment {
     private MaterialButton btnCancel;
 
     private final String[] orderStatuses = {
-        "Pending", "Processing", "Shipped", "Delivered", "Cancelled"
+        "Pending", "Processing", "Delivered", "Cancelled"
     };
+
+    // Get available statuses based on current order status
+    private String[] getAvailableStatuses(String currentStatus) {
+        if (currentStatus == null || currentStatus.isEmpty()) {
+            return orderStatuses; // All statuses available if no current status
+        }
+        
+        switch (currentStatus.toLowerCase()) {
+            case "pending":
+                // From Pending: can go to Processing, Delivered, or Cancelled
+                return new String[]{"Pending", "Processing", "Delivered", "Cancelled"};
+                
+            case "processing":
+                // From Processing: can only go forward to Delivered or Cancelled (cannot go back to Pending)
+                return new String[]{"Processing", "Delivered", "Cancelled"};
+                
+            case "delivered":
+                // From Delivered: final state, only can view (but allow changing for admin flexibility)
+                return new String[]{"Delivered"};
+                
+            case "cancelled":
+                // From Cancelled: final state, only can view (but allow changing for admin flexibility)
+                return new String[]{"Cancelled"};
+                
+            default:
+                return orderStatuses; // Fallback to all statuses
+        }
+    }
 
     public interface OnStatusUpdatedListener {
         void onStatusUpdated(int orderId, String newStatus, String note);
@@ -80,17 +108,24 @@ public class AdminOrderStatusDialogFragment extends DialogFragment {
     }
 
     private void setupStatusDropdown() {
+        // Get available statuses based on current order status
+        String currentStatus = order != null ? order.getOrderStatus() : "";
+        String[] availableStatuses = getAvailableStatuses(currentStatus);
+        
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
-            orderStatuses
+            availableStatuses
         );
         actvStatus.setAdapter(statusAdapter);
     }
 
     private void populateFields() {
         if (order != null) {
-            actvStatus.setText(order.getStatus(), false);
+            String currentStatus = order.getOrderStatus();
+            if (currentStatus != null && !currentStatus.isEmpty()) {
+                actvStatus.setText(currentStatus, false);
+            }
         }
     }
 

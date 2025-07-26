@@ -51,13 +51,13 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.List;
 
-public class HomeFragment extends Fragment implements
+public class HomeFragment extends Fragment implements 
         CategoryAdapter.OnCategoryClickListener,
         ProductAdapter.OnProductClickListener,
         BannerAdapter.OnBannerClickListener {
 
     private static final String TAG = "HomeFragment";
-
+    
     private HomeViewModel viewModel;
     private SearchViewModel searchViewModel;
     private CartViewModel cartViewModel;
@@ -71,7 +71,7 @@ public class HomeFragment extends Fragment implements
     private FrameLayout loadingContainer;
     private FrameLayout cartContainer;
     private TextView cartBadge;
-
+    
     // Search components
     private TextInputEditText searchEditText;
     private ImageView filterIcon;
@@ -85,7 +85,7 @@ public class HomeFragment extends Fragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_fragment, container, false);
-
+        
         // Initialize views
         bannerViewPager = view.findViewById(R.id.bannerViewPager);
         bannerIndicator = view.findViewById(R.id.bannerIndicator);
@@ -94,20 +94,20 @@ public class HomeFragment extends Fragment implements
         loadingContainer = view.findViewById(R.id.loadingContainer);
         cartContainer = view.findViewById(R.id.cartContainer);
         cartBadge = view.findViewById(R.id.cartBadge);
-
+        
         // Initialize search components
         searchEditText = view.findViewById(R.id.searchEditText);
         filterIcon = view.findViewById(R.id.filterIcon);
         seeAllProducts = view.findViewById(R.id.seeAllProducts);
         seeAllCategories = view.findViewById(R.id.seeAllCategories);
-
+        
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        
         initViews(view);
         setupAdapters();
         setupViewModel();
@@ -127,24 +127,24 @@ public class HomeFragment extends Fragment implements
         // Setup Banner ViewPager
         bannerAdapter = new BannerAdapter(getContext());
         bannerViewPager.setAdapter(bannerAdapter);
-
+        
         // Connect TabLayout with ViewPager2
         new TabLayoutMediator(bannerIndicator, bannerViewPager,
-                (tab, position) -> {
-                    // No text for tabs
-                }
+            (tab, position) -> {
+                // No text for tabs
+            }
         ).attach();
-
+        
         // Auto-scroll for banner (optional)
         autoScrollBanner();
-
+        
         // Setup Categories RecyclerView with horizontal scrolling
         categoryAdapter = new CategoryAdapter();
         categoryAdapter.setOnCategoryClickListener(this);
         LinearLayoutManager categoryLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         categoriesRecyclerView.setLayoutManager(categoryLayoutManager);
         categoriesRecyclerView.setAdapter(categoryAdapter);
-
+        
         // Setup Featured Products RecyclerView
         productAdapter = new ProductAdapter();
         productAdapter.setOnProductClickListener(this);
@@ -172,18 +172,18 @@ public class HomeFragment extends Fragment implements
         viewModel.getFeaturedProducts().observe(getViewLifecycleOwner(), products -> {
             if (products != null) {
                 Log.d(TAG, "Featured products loaded: " + products.size());
-
+                
                 if (!isSearchMode) {
                     productAdapter.updateProducts(products);
                 }
             }
         });
-
+        
         // Observe all products for search functionality
         viewModel.getAllProducts().observe(getViewLifecycleOwner(), products -> {
             if (products != null) {
                 Log.d(TAG, "All products loaded: " + products.size());
-
+                
                 // Store original products for search functionality
                 originalProducts = products;
             }
@@ -214,7 +214,7 @@ public class HomeFragment extends Fragment implements
             // Update indicator count
             bannerIndicator.setVisibility(banners.isEmpty() ? View.GONE : View.VISIBLE);
         });
-
+        
         // Observe cart to update the badge
         cartViewModel.getCart().observe(getViewLifecycleOwner(), cart -> {
             if (cart != null && cart.getItems() != null) {
@@ -225,7 +225,7 @@ public class HomeFragment extends Fragment implements
             }
         });
     }
-
+    
     private void updateCartBadge(int itemCount) {
         if (itemCount > 0) {
             cartBadge.setVisibility(View.VISIBLE);
@@ -234,7 +234,7 @@ public class HomeFragment extends Fragment implements
             cartBadge.setVisibility(View.GONE);
         }
     }
-
+    
     private void setupCartNavigation() {
         cartContainer.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -276,7 +276,7 @@ public class HomeFragment extends Fragment implements
         });
     }
 
-
+    
     private void setupSearchFunctionality() {
         // Setup search EditText with TextWatcher for real-time search
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -289,22 +289,22 @@ public class HomeFragment extends Fragment implements
             @Override
             public void afterTextChanged(Editable s) {
                 String query = s.toString().trim();
-
+                
                 // Cancel previous search request
                 if (searchRunnable != null) {
                     searchHandler.removeCallbacks(searchRunnable);
                 }
-
+                
                 // Schedule new search with 300ms delay (debouncing)
                 searchRunnable = () -> performSearch(query);
                 searchHandler.postDelayed(searchRunnable, 300);
             }
         });
-
+        
         // Setup filter icon click
         filterIcon.setOnClickListener(v -> showFilterBottomSheet());
     }
-
+    
     private void performSearch(String query) {
         if (query.isEmpty()) {
             // Return to normal mode - show featured products (most-ordered)
@@ -319,18 +319,18 @@ public class HomeFragment extends Fragment implements
             searchViewModel.searchProducts(query, null, null, "name", 0, 20);
         }
     }
-
+    
     private void showFilterBottomSheet() {
         // Create and show filter bottom sheet
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View bottomSheetView = LayoutInflater.from(getContext())
                 .inflate(R.layout.bottom_sheet_filter, null);
-
+        
         bottomSheetDialog.setContentView(bottomSheetView);
-
+        
         // Get filter options from API first
         searchViewModel.loadFilterOptions();
-
+        
         // Setup filter options when data is available
         searchViewModel.getFilterOptions().observe(getViewLifecycleOwner(), filterOptions -> {
             if (filterOptions != null) {
@@ -338,33 +338,33 @@ public class HomeFragment extends Fragment implements
                 setupSortByChips(bottomSheetView, filterOptions.getSortOptions());
             }
         });
-
+        
         // Setup close button (there's no closeFilter in the layout, so skip this)
         // ImageView closeFilter = bottomSheetView.findViewById(R.id.closeFilter);
         // closeFilter.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
+        
         // Setup reset button
         MaterialButton resetButton = bottomSheetView.findViewById(R.id.resetFilterButton);
         resetButton.setOnClickListener(v -> {
             resetFilters(bottomSheetView);
         });
-
+        
         // Setup apply button
         MaterialButton applyButton = bottomSheetView.findViewById(R.id.applyFilterButton);
         applyButton.setOnClickListener(v -> {
             applyFilters(bottomSheetView);
             bottomSheetDialog.dismiss();
         });
-
+        
         bottomSheetDialog.show();
     }
-
+    
     private void setupPriceRangeChips(View bottomSheetView, List<FilterOptionsResponse.PriceRange> priceRanges) {
         ChipGroup priceRangeChipGroup = bottomSheetView.findViewById(R.id.priceRangeChipGroup);
-
+        
         // Clear existing chips
         priceRangeChipGroup.removeAllViews();
-
+        
         // Add "All Prices" chip first
         Chip allPricesChip = new Chip(requireContext());
         allPricesChip.setText("All Prices");
@@ -372,7 +372,7 @@ public class HomeFragment extends Fragment implements
         allPricesChip.setChecked(true); // Default selected
         allPricesChip.setTag(null); // No price range filter
         priceRangeChipGroup.addView(allPricesChip);
-
+        
         // Add price range chips from API
         if (priceRanges != null && !priceRanges.isEmpty()) {
             for (FilterOptionsResponse.PriceRange priceRange : priceRanges) {
@@ -386,12 +386,12 @@ public class HomeFragment extends Fragment implements
             // Add default price ranges if API doesn't provide them
             String[] priceRangeValues = {"under_1m", "1m_to_10m", "over_10m"};
             String[] priceRangeLabels = {"Under 1M", "1M - 10M", "Over 10M"};
-
+            
             for (int i = 0; i < priceRangeValues.length; i++) {
                 FilterOptionsResponse.PriceRange priceRange = new FilterOptionsResponse.PriceRange();
                 priceRange.setValue(priceRangeValues[i]);
                 priceRange.setLabel(priceRangeLabels[i]);
-
+                
                 Chip chip = new Chip(requireContext());
                 chip.setText(priceRangeLabels[i]);
                 chip.setCheckable(true);
@@ -400,13 +400,13 @@ public class HomeFragment extends Fragment implements
             }
         }
     }
-
+    
     private void setupSortByChips(View bottomSheetView, List<FilterOptionsResponse.SortOption> sortOptions) {
         ChipGroup sortByChipGroup = bottomSheetView.findViewById(R.id.sortByChipGroup);
-
+        
         // Clear existing chips
         sortByChipGroup.removeAllViews();
-
+        
         // Add sort option chips
         if (sortOptions != null && !sortOptions.isEmpty()) {
             for (FilterOptionsResponse.SortOption sortOption : sortOptions) {
@@ -424,7 +424,7 @@ public class HomeFragment extends Fragment implements
             // Add default sort options if none from API
             String[] sortLabels = {"Name", "Price: Low to High", "Price: High to Low", "Newest"};
             String[] sortValues = {"name", "price_asc", "price_desc", "createdAt_desc"};
-
+            
             for (int i = 0; i < sortLabels.length; i++) {
                 Chip chip = new Chip(requireContext());
                 chip.setText(sortLabels[i]);
@@ -438,42 +438,42 @@ public class HomeFragment extends Fragment implements
             }
         }
     }
-
+    
     private void resetFilters(View bottomSheetView) {
         // Reset price range selection to first chip (All Prices)
         ChipGroup priceRangeChipGroup = bottomSheetView.findViewById(R.id.priceRangeChipGroup);
         if (priceRangeChipGroup.getChildCount() > 0) {
             ((Chip) priceRangeChipGroup.getChildAt(0)).setChecked(true);
         }
-
+        
         // Reset sort selection to first chip
         ChipGroup sortByChipGroup = bottomSheetView.findViewById(R.id.sortByChipGroup);
         if (sortByChipGroup.getChildCount() > 0) {
             ((Chip) sortByChipGroup.getChildAt(0)).setChecked(true);
         }
     }
-
+    
     private void applyFilters(View bottomSheetView) {
         // Get selected price range
         ChipGroup priceRangeChipGroup = bottomSheetView.findViewById(R.id.priceRangeChipGroup);
         int selectedPriceChipId = priceRangeChipGroup.getCheckedChipId();
-
+        
         String priceRange = null;
-
+        
         if (selectedPriceChipId != View.NO_ID) {
             Chip selectedPriceChip = bottomSheetView.findViewById(selectedPriceChipId);
-            FilterOptionsResponse.PriceRange priceRangeObj =
+            FilterOptionsResponse.PriceRange priceRangeObj = 
                     (FilterOptionsResponse.PriceRange) selectedPriceChip.getTag();
             if (priceRangeObj != null && priceRangeObj.getValue() != null) {
                 priceRange = priceRangeObj.getValue();
             }
         }
-
+        
         // Get selected sort option
         ChipGroup sortByChipGroup = bottomSheetView.findViewById(R.id.sortByChipGroup);
         int selectedSortChipId = sortByChipGroup.getCheckedChipId();
         String sortBy = "name"; // default
-
+        
         if (selectedSortChipId != View.NO_ID) {
             Chip selectedSortChip = bottomSheetView.findViewById(selectedSortChipId);
             String sortTag = (String) selectedSortChip.getTag();
@@ -481,11 +481,11 @@ public class HomeFragment extends Fragment implements
                 sortBy = sortTag;
             }
         }
-
+        
         // Apply search with filters
-        String currentQuery = searchEditText.getText() != null ?
+        String currentQuery = searchEditText.getText() != null ? 
                 searchEditText.getText().toString().trim() : "";
-
+        
         if (currentQuery.isEmpty() && priceRange == null && "name".equals(sortBy)) {
             // No filters applied, return to normal mode - show featured products
             isSearchMode = false;
@@ -511,7 +511,7 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onCategoryClick(Category category) {
         Log.d(TAG, "Category clicked: " + category.getCategoryName());
-
+        
         // Navigate to category products screen
         if (getActivity() != null) {
             CategoryProductsFragment categoryProductsFragment = CategoryProductsFragment.newInstance(category);
@@ -529,7 +529,7 @@ public class HomeFragment extends Fragment implements
         Log.d(TAG, "Product clicked: " + product.getProductName());
         Log.d(TAG, "Product image URL in Home: " + product.getImageURL());
         Log.d(TAG, "Product ID: " + product.getId());
-
+        
         // Navigate to product detail screen
         if (getActivity() != null) {
             // TEST: Try passing the product directly instead of just ID
@@ -544,7 +544,7 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onBannerClick(Banner banner) {
-
+    
     }
 
     private void autoScrollBanner() {
@@ -560,7 +560,7 @@ public class HomeFragment extends Fragment implements
         };
         handler.postDelayed(runnable, 3000);
     }
-
+    
     @Override
     public void onResume() {
         super.onResume();

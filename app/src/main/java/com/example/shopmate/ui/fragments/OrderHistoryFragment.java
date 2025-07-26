@@ -80,24 +80,38 @@ public class OrderHistoryFragment extends Fragment {
         showLoading(true);
         
         int userId = authManager.getUserId();
+        android.util.Log.d("OrderHistory", "Loading orders for userId: " + userId);
+        
         orderApi.getOrdersByUserId(userId).enqueue(new Callback<ApiResponse<List<Order>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Order>>> call, Response<ApiResponse<List<Order>>> response) {
                 showLoading(false);
+                android.util.Log.d("OrderHistory", "API response - success: " + response.isSuccessful() + 
+                                  ", code: " + response.code());
                 
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccessful()) {
-                    List<Order> orders = response.body().getData();
-                    if (orders != null && !orders.isEmpty()) {
-                        orderList.clear();
-                        // Sắp xếp theo ID giảm dần (order mới nhất lên đầu)
-                        orders.sort((o1, o2) -> Integer.compare(o2.getId(), o1.getId()));
-                        orderList.addAll(orders);
-                        adapter.notifyDataSetChanged();
-                        showEmptyView(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    android.util.Log.d("OrderHistory", "Response body success: " + response.body().isSuccessful());
+                    if (response.body().isSuccessful()) {
+                        List<Order> orders = response.body().getData();
+                        android.util.Log.d("OrderHistory", "Orders count: " + (orders != null ? orders.size() : "null"));
+                        
+                        if (orders != null && !orders.isEmpty()) {
+                            orderList.clear();
+                            // Sắp xếp theo ID giảm dần (order mới nhất lên đầu)
+                            orders.sort((o1, o2) -> Integer.compare(o2.getId(), o1.getId()));
+                            orderList.addAll(orders);
+                            adapter.notifyDataSetChanged();
+                            showEmptyView(false);
+                        } else {
+                            android.util.Log.d("OrderHistory", "No orders found");
+                            showEmptyView(true);
+                        }
                     } else {
+                        android.util.Log.e("OrderHistory", "API response not successful: " + response.body().getMessage());
                         showEmptyView(true);
                     }
                 } else {
+                    android.util.Log.e("OrderHistory", "Response not successful or body is null");
                     Toast.makeText(getContext(), "Failed to load orders", Toast.LENGTH_SHORT).show();
                     showEmptyView(true);
                 }
@@ -106,6 +120,7 @@ public class OrderHistoryFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponse<List<Order>>> call, Throwable t) {
                 showLoading(false);
+                android.util.Log.e("OrderHistory", "Network error: " + t.getMessage(), t);
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 showEmptyView(true);
             }

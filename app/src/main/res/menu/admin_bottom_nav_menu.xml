@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/nav_admin_orders"
+        android:icon="@drawable/ic_shopping_bag"
+        android:title="Orders" />
+
+    <item
         android:id="@+id/nav_admin_products"
         android:icon="@drawable/ic_products"
         android:title="Products" />
@@ -11,10 +16,6 @@
         android:icon="@drawable/ic_categories"
         android:title="Categories" />
 
-    <item
-        android:id="@+id/nav_admin_orders"
-        android:icon="@drawable/ic_orders"
-        android:title="Orders" />
         
     <item
         android:id="@+id/nav_admin_chat"

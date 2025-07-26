@@ -29,7 +29,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Search orders..."
+                    android:hint="Search by customer name..."
                     app:startIconDrawable="@drawable/ic_search"
                     app:endIconMode="clear_text"
                     app:boxBackgroundMode="none">
@@ -44,18 +44,18 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Status Filter -->
+                <!-- Sort Filter -->
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/statusFilterLayout"
+                    android:id="@+id/sortFilterLayout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="Filter by Status"
-                    app:startIconDrawable="@drawable/ic_filter">
+                    android:hint="Sort by"
+                    app:startIconDrawable="@drawable/ic_sort">
 
                     <AutoCompleteTextView
-                        android:id="@+id/statusFilterSpinner"
+                        android:id="@+id/sortFilterSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none" />

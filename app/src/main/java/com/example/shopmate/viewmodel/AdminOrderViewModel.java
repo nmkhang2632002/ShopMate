@@ -6,8 +6,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.shopmate.data.model.ApiResponse;
 import com.example.shopmate.data.model.Order;
+import com.example.shopmate.data.model.CartItem;
+import com.example.shopmate.data.model.User;
 import com.example.shopmate.data.model.UpdateOrderStatusRequest;
 import com.example.shopmate.data.network.OrderApi;
+import com.example.shopmate.data.network.UserApi;
 import com.example.shopmate.data.network.RetrofitClient;
 
 import java.util.ArrayList;
@@ -21,7 +24,8 @@ import retrofit2.Response;
 public class AdminOrderViewModel extends ViewModel {
 
     private OrderApi orderApi;
-    private List<Order> allMockOrders; // Danh sách đầy đủ mock data
+    private UserApi userApi;
+    private List<Order> allOrders; // Danh sách đầy đủ từ API
     private List<Order> filteredOrders; // Danh sách sau khi filter
 
     private MutableLiveData<List<Order>> orders = new MutableLiveData<>();
@@ -36,9 +40,10 @@ public class AdminOrderViewModel extends ViewModel {
 
     public AdminOrderViewModel() {
         orderApi = RetrofitClient.getInstance().create(OrderApi.class);
-        // Khởi tạo mock data
-        allMockOrders = createMockOrders();
-        filteredOrders = new ArrayList<>(allMockOrders);
+        userApi = RetrofitClient.getInstance().create(UserApi.class);
+        // Khởi tạo danh sách rỗng
+        allOrders = new ArrayList<>();
+        filteredOrders = new ArrayList<>();
     }
 
     // Getters for LiveData
@@ -48,19 +53,102 @@ public class AdminOrderViewModel extends ViewModel {
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getOperationSuccess() { return operationSuccess; }
 
-    public void loadOrders() {
+    // Load tất cả orders từ API /v1/orders
+    public void loadAllOrders() {
         isLoading.setValue(true);
         errorMessage.setValue("");
 
-        // Sử dụng mock data thay vì API call
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            isLoading.setValue(false);
-            // Reset filter và hiển thị tất cả orders
-            currentSearchQuery = "";
-            currentStatusFilter = "All";
-            filteredOrders = new ArrayList<>(allMockOrders);
-            orders.setValue(filteredOrders);
-        }, 500);
+        orderApi.getAllOrders(0, 100).enqueue(new Callback<ApiResponse<List<Order>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Order>>> call, Response<ApiResponse<List<Order>>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<List<Order>> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        allOrders = apiResponse.getData();
+                        
+                        // Process each order để tính toán total amount và items
+                        for (Order order : allOrders) {
+                            processOrderData(order);
+                        }
+                        
+                        // Fetch usernames for all orders
+                        fetchUsernamesForOrders(allOrders);
+                        
+                        filteredOrders = new ArrayList<>(allOrders);
+                        orders.setValue(filteredOrders);
+                    } else {
+                        errorMessage.setValue("Lỗi: " + apiResponse.getMessage());
+                        orders.setValue(new ArrayList<>());
+                    }
+                } else {
+                    errorMessage.setValue("Lỗi mạng: " + response.code());
+                    orders.setValue(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Order>>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Lỗi kết nối: " + t.getMessage());
+                orders.setValue(new ArrayList<>());
+            }
+        });
+    }
+
+    // Load orders theo user ID - tận dụng lại method có sẵn
+    public void loadOrdersByUserId(int userId) {
+        isLoading.setValue(true);
+        errorMessage.setValue("");
+
+        orderApi.getOrdersByUserId(userId).enqueue(new Callback<ApiResponse<List<Order>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Order>>> call, Response<ApiResponse<List<Order>>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<List<Order>> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        allOrders = apiResponse.getData();
+                        
+                        // Process each order để tính toán total amount và items
+                        for (Order order : allOrders) {
+                            processOrderData(order);
+                        }
+                        
+                        // Fetch usernames for all orders
+                        fetchUsernamesForOrders(allOrders);
+                        
+                        filteredOrders = new ArrayList<>(allOrders);
+                        orders.setValue(filteredOrders);
+                    } else {
+                        errorMessage.setValue("Lỗi: " + apiResponse.getMessage());
+                        orders.setValue(new ArrayList<>());
+                    }
+                } else {
+                    errorMessage.setValue("Lỗi mạng: " + response.code());
+                    orders.setValue(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Order>>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Lỗi kết nối: " + t.getMessage());
+                orders.setValue(new ArrayList<>());
+            }
+        });
+    }
+
+    public void loadOrders() {
+        // Default load all orders
+        loadAllOrders();
+    }
+
+    // Quick access method - search order by ID
+    public void searchOrderById(int orderId) {
+        getOrderDetail(orderId);
     }
 
     // Search theo tiêu đề order (ví dụ "Order 1")
@@ -83,7 +171,7 @@ public class AdminOrderViewModel extends ViewModel {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             isLoading.setValue(false);
 
-            List<Order> result = new ArrayList<>(allMockOrders);
+            List<Order> result = new ArrayList<>(allOrders);
 
             // Áp dụng filter trạng thái trước
             if (!currentStatusFilter.equals("All") && !currentStatusFilter.isEmpty()) {
@@ -93,13 +181,18 @@ public class AdminOrderViewModel extends ViewModel {
                     .collect(Collectors.toList());
             }
 
-            // Sau đó áp dụng search theo tiêu đề order
+            // Sau đó áp dụng search theo ID order hoặc user info
             if (!currentSearchQuery.isEmpty()) {
                 final String searchLower = currentSearchQuery.toLowerCase();
                 result = result.stream()
                     .filter(order -> {
-                        String orderTitle = "Order " + order.getId();
-                        return orderTitle.toLowerCase().contains(searchLower);
+                        String orderId = String.valueOf(order.getId());
+                        String billingAddress = order.getBillingAddress() != null ? order.getBillingAddress() : "";
+                        String paymentMethod = order.getPaymentMethod() != null ? order.getPaymentMethod() : "";
+                        
+                        return orderId.contains(searchLower) ||
+                               billingAddress.toLowerCase().contains(searchLower) ||
+                               paymentMethod.toLowerCase().contains(searchLower);
                     })
                     .collect(Collectors.toList());
             }
@@ -122,101 +215,34 @@ public class AdminOrderViewModel extends ViewModel {
         loadOrders();
     }
 
-    // Tạo mock orders cho admin
-    private List<Order> createMockOrders() {
-        List<Order> mockOrders = new ArrayList<>();
-
-        // Order 1 - PENDING
-        Order order1 = new Order();
-        order1.setId(1);
-        order1.setUserId(101);
-        order1.setUserName("Nguyễn Văn A");
-        order1.setUserEmail("nguyenvana@gmail.com");
-        order1.setPaymentMethod("COD");
-        order1.setBillingAddress("123 Nguyễn Huệ, Q1, TP.HCM");
-        order1.setOrderStatus("PENDING");
-        order1.setStatus("PENDING");
-        order1.setTotalAmount(1500000);
-        order1.setTotalItems(3);
-        order1.setOrderDate(new java.util.Date());
-        order1.setNote("Giao hàng giờ hành chính");
-        mockOrders.add(order1);
-
-        // Order 2 - CONFIRMED
-        Order order2 = new Order();
-        order2.setId(2);
-        order2.setUserId(102);
-        order2.setUserName("Trần Thị B");
-        order2.setUserEmail("tranthib@gmail.com");
-        order2.setPaymentMethod("CARD");
-        order2.setBillingAddress("456 Lê Lợi, Q3, TP.HCM");
-        order2.setOrderStatus("CONFIRMED");
-        order2.setStatus("CONFIRMED");
-        order2.setTotalAmount(2800000);
-        order2.setTotalItems(2);
-        order2.setOrderDate(new java.util.Date(System.currentTimeMillis() - 86400000)); // 1 day ago
-        order2.setNote("Giao hàng cuối tuần");
-        mockOrders.add(order2);
-
-        // Order 3 - SHIPPED
-        Order order3 = new Order();
-        order3.setId(3);
-        order3.setUserId(103);
-        order3.setUserName("Lê Văn C");
-        order3.setUserEmail("levanc@gmail.com");
-        order3.setPaymentMethod("MOMO");
-        order3.setBillingAddress("789 Võ Văn Tần, Q10, TP.HCM");
-        order3.setOrderStatus("SHIPPED");
-        order3.setStatus("SHIPPED");
-        order3.setTotalAmount(950000);
-        order3.setTotalItems(1);
-        order3.setOrderDate(new java.util.Date(System.currentTimeMillis() - 172800000)); // 2 days ago
-        order3.setNote("Gọi trước khi giao");
-        mockOrders.add(order3);
-
-        // Order 4 - DELIVERED
-        Order order4 = new Order();
-        order4.setId(4);
-        order4.setUserId(104);
-        order4.setUserName("Phạm Thị D");
-        order4.setUserEmail("phamthid@gmail.com");
-        order4.setPaymentMethod("COD");
-        order4.setBillingAddress("321 Cách Mạng Tháng 8, Q3, TP.HCM");
-        order4.setOrderStatus("DELIVERED");
-        order4.setStatus("DELIVERED");
-        order4.setTotalAmount(3200000);
-        order4.setTotalItems(4);
-        order4.setOrderDate(new java.util.Date(System.currentTimeMillis() - 259200000)); // 3 days ago
-        order4.setNote("Đã giao thành công");
-        mockOrders.add(order4);
-
-        // Order 5 - CANCELLED
-        Order order5 = new Order();
-        order5.setId(5);
-        order5.setUserId(105);
-        order5.setUserName("Hoàng Văn E");
-        order5.setUserEmail("hoangvane@gmail.com");
-        order5.setPaymentMethod("CARD");
-        order5.setBillingAddress("654 Hai Bà Trưng, Q1, TP.HCM");
-        order5.setOrderStatus("CANCELLED");
-        order5.setStatus("CANCELLED");
-        order5.setTotalAmount(750000);
-        order5.setTotalItems(1);
-        order5.setOrderDate(new java.util.Date(System.currentTimeMillis() - 345600000)); // 4 days ago
-        order5.setNote("Khách hàng hủy đơn");
-        mockOrders.add(order5);
-
-        return mockOrders;
-    }
-
     public void updateOrderStatus(int orderId, String newStatus) {
         isLoading.setValue(true);
         errorMessage.setValue("");
 
-        // Truyền đủ 2 tham số cho UpdateOrderStatusRequest (status và note)
-        UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(newStatus, "Status updated by admin");
+        Call<ApiResponse<Order>> call;
+        
+        // Use specific endpoints based on status
+        switch (newStatus.toLowerCase()) {
+            case "processing":
+                call = orderApi.updateOrderToProcessing(orderId);
+                break;
+            case "delivered":
+                call = orderApi.updateOrderToDelivered(orderId);
+                break;
+            case "cancelled":
+                call = orderApi.updateOrderToCancelled(orderId);
+                break;
+            case "failed":
+                call = orderApi.updateOrderToFailed(orderId, "Status updated by admin");
+                break;
+            default:
+                // Fallback to legacy endpoint with request body
+                UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(newStatus, "Status updated by admin");
+                call = orderApi.updateOrderStatus(orderId, request);
+                break;
+        }
 
-        orderApi.updateOrderStatus(orderId, request).enqueue(new Callback<ApiResponse<Order>>() {
+        call.enqueue(new Callback<ApiResponse<Order>>() {
             @Override
             public void onResponse(Call<ApiResponse<Order>> call, Response<ApiResponse<Order>> response) {
                 isLoading.setValue(false);
@@ -254,7 +280,11 @@ public class AdminOrderViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse<Order> apiResponse = response.body();
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        orderDetail.setValue(apiResponse.getData());
+                        Order order = apiResponse.getData();
+                        processOrderData(order); // Process data trước khi set
+                        
+                        // Fetch username cho order detail
+                        fetchUsernameForOrderDetail(order);
                     } else {
                         errorMessage.setValue(apiResponse.getMessage() != null ?
                             apiResponse.getMessage() : "Failed to load order detail");
@@ -279,5 +309,223 @@ public class AdminOrderViewModel extends ViewModel {
 
     public void clearError() {
         errorMessage.setValue("");
+    }
+
+    /**
+     * Process order data để tính toán total amount, items count và customer name
+     */
+    private void processOrderData(Order order) {
+        // 1. Tính total amount từ payments hoặc cart items
+        double totalAmount = 0;
+        if (order.getPayments() != null && !order.getPayments().isEmpty()) {
+            // Lấy amount từ payment đầu tiên
+            totalAmount = order.getPayments().get(0).getAmount();
+        } else if (order.getCartItems() != null) {
+            // Tính tổng từ cart items
+            for (CartItem item : order.getCartItems()) {
+                if (item.getSubtotal() != null) {
+                    totalAmount += item.getSubtotal().doubleValue();
+                }
+            }
+        }
+        order.setTotalAmount(totalAmount);
+
+        // 2. Tính total items từ cart items
+        int totalItems = 0;
+        if (order.getCartItems() != null) {
+            for (CartItem item : order.getCartItems()) {
+                totalItems += item.getQuantity();
+            }
+        }
+        order.setTotalItems(totalItems);
+
+        // 3. Set customer name - sẽ được update sau khi fetch username
+        if (order.getUserName() == null || order.getUserName().isEmpty()) {
+            order.setUserName("Loading..."); // Temporary placeholder
+        }
+    }
+
+    /**
+     * Fetch usernames cho tất cả orders để hiển thị tên thật thay vì ID
+     */
+    private void fetchUsernamesForOrders(List<Order> orderList) {
+        for (Order order : orderList) {
+            fetchUsernameForOrder(order);
+        }
+    }
+
+    /**
+     * Fetch username cho một order cụ thể
+     */
+    private void fetchUsernameForOrder(Order order) {
+        userApi.getUserById(order.getUserId()).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<User> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        User user = apiResponse.getData();
+                        String username = user.getUsername();
+                        
+                        // Update order với username thực
+                        order.setUserName(username != null && !username.isEmpty() ? 
+                                         username : "Customer #" + order.getUserId());
+                        
+                        // Trigger UI update
+                        updateOrdersUI();
+                    } else {
+                        // Fallback to Customer ID if API fails
+                        order.setUserName("Customer #" + order.getUserId());
+                        updateOrdersUI();
+                    }
+                } else {
+                    // Fallback to Customer ID if API fails
+                    order.setUserName("Customer #" + order.getUserId());
+                    updateOrdersUI();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                // Fallback to Customer ID if API fails
+                order.setUserName("Customer #" + order.getUserId());
+                updateOrdersUI();
+            }
+        });
+    }
+
+    /**
+     * Update UI sau khi fetch username
+     */
+    private void updateOrdersUI() {
+        // Trigger UI update với current filtered orders
+        orders.postValue(new ArrayList<>(filteredOrders));
+    }
+
+    /**
+     * Fetch username cho order detail
+     */
+    private void fetchUsernameForOrderDetail(Order order) {
+        userApi.getUserById(order.getUserId()).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<User> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        User user = apiResponse.getData();
+                        String username = user.getUsername();
+                        
+                        // Update order với username thực
+                        order.setUserName(username != null && !username.isEmpty() ? 
+                                         username : "Customer #" + order.getUserId());
+                    } else {
+                        // Fallback to Customer ID if API fails
+                        order.setUserName("Customer #" + order.getUserId());
+                    }
+                } else {
+                    // Fallback to Customer ID if API fails
+                    order.setUserName("Customer #" + order.getUserId());
+                }
+                
+                // Set order detail sau khi có username
+                orderDetail.setValue(order);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                // Fallback to Customer ID if API fails
+                order.setUserName("Customer #" + order.getUserId());
+                orderDetail.setValue(order);
+            }
+        });
+    }
+
+    public void updatePaymentStatus(int paymentId, String newStatus) {
+        isLoading.setValue(true);
+        
+        // Create PaymentApi instance
+        com.example.shopmate.data.network.PaymentApi paymentApi = 
+            RetrofitClient.getInstance().create(com.example.shopmate.data.network.PaymentApi.class);
+        
+        // Create request body
+        com.example.shopmate.data.model.UpdatePaymentStatusRequest request = 
+            new com.example.shopmate.data.model.UpdatePaymentStatusRequest(newStatus);
+        
+        Call<ApiResponse<com.example.shopmate.data.model.Payment>> call = 
+            paymentApi.updatePaymentStatus(paymentId, request);
+        
+        call.enqueue(new Callback<ApiResponse<com.example.shopmate.data.model.Payment>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<com.example.shopmate.data.model.Payment>> call, 
+                                 Response<ApiResponse<com.example.shopmate.data.model.Payment>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().getStatus() == 1000) {
+                        operationSuccess.setValue(true);
+                        // Reload orders to refresh payment status
+                        loadOrders();
+                    } else {
+                        errorMessage.setValue(response.body().getMessage());
+                    }
+                } else {
+                    errorMessage.setValue("Failed to update payment status");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<com.example.shopmate.data.model.Payment>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    public void searchAndFilterOrders(String searchQuery, String statusFilter, String sortFilter) {
+        if (allOrders == null || allOrders.isEmpty()) {
+            // Nếu chưa có data, load trước
+            loadOrders();
+            return;
+        }
+
+        List<Order> filtered = new ArrayList<>(allOrders);
+
+        // Apply status filter
+        if (statusFilter != null && !statusFilter.isEmpty() && !statusFilter.equals("All Status")) {
+            filtered = filtered.stream()
+                    .filter(order -> order.getStatus().equalsIgnoreCase(statusFilter))
+                    .collect(Collectors.toList());
+        }
+
+        // Apply search by customer name
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            String query = searchQuery.trim().toLowerCase();
+            filtered = filtered.stream()
+                    .filter(order -> {
+                        String customerName = order.getUserName();
+                        return customerName != null && customerName.toLowerCase().contains(query);
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Apply sorting
+        if (sortFilter != null && !sortFilter.equals("Default")) {
+            switch (sortFilter) {
+                case "Total Amount (Low to High)":
+                    filtered.sort((o1, o2) -> Double.compare(o1.getTotalAmount(), o2.getTotalAmount()));
+                    break;
+                case "Total Amount (High to Low)":
+                    filtered.sort((o1, o2) -> Double.compare(o2.getTotalAmount(), o1.getTotalAmount()));
+                    break;
+                case "Order ID (Low to High)":
+                    filtered.sort((o1, o2) -> Integer.compare(o1.getId(), o2.getId()));
+                    break;
+                case "Order ID (High to Low)":
+                    filtered.sort((o1, o2) -> Integer.compare(o2.getId(), o1.getId()));
+                    break;
+            }
+        }
+
+        orders.setValue(filtered);
     }
 }

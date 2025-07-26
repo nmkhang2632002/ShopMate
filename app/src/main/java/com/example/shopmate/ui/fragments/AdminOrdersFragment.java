@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,9 +25,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.shopmate.R;
 import com.example.shopmate.data.model.Order;
 import com.example.shopmate.ui.adapters.AdminOrderAdapter;
+import com.example.shopmate.ui.fragments.OrderDetailFragment;
 import com.example.shopmate.viewmodel.AdminOrderViewModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -45,16 +49,20 @@ public class AdminOrdersFragment extends Fragment implements
     private LinearProgressIndicator progressIndicator;
     private View emptyStateView;
     private ChipGroup statusChipGroup;
-    private AutoCompleteTextView statusFilterSpinner;
-    private TextInputLayout statusFilterLayout;
+    private AutoCompleteTextView sortFilterSpinner;
+    private TextInputLayout sortFilterLayout;
 
     private Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
     private static final int SEARCH_DELAY = 500;
 
     private String currentStatusFilter = "";
+    private String currentSortFilter = "Default";
     private final String[] orderStatuses = {
-        "All Status", "Pending", "Processing", "Shipped", "Delivered", "Cancelled"
+        "All Status", "Pending", "Processing", "Delivered", "Cancelled"
+    };
+    private final String[] sortOptions = {
+        "Default", "Total Amount (Low to High)", "Total Amount (High to Low)", "Order ID (Low to High)", "Order ID (High to Low)"
     };
 
     @Override
@@ -65,7 +73,8 @@ public class AdminOrdersFragment extends Fragment implements
         initViews(view);
         setupRecyclerView();
         setupSearch();
-        setupStatusFilter();
+        setupStatusChips();
+        setupSortFilter();
         setupObservers();
         setupClickListeners();
 
@@ -88,8 +97,8 @@ public class AdminOrdersFragment extends Fragment implements
         progressIndicator = view.findViewById(R.id.progressIndicator);
         emptyStateView = view.findViewById(R.id.emptyStateView);
         statusChipGroup = view.findViewById(R.id.statusChipGroup);
-        statusFilterSpinner = view.findViewById(R.id.statusFilterSpinner);
-        statusFilterLayout = view.findViewById(R.id.statusFilterLayout);
+        sortFilterSpinner = view.findViewById(R.id.sortFilterSpinner);
+        sortFilterLayout = view.findViewById(R.id.sortFilterLayout);
     }
 
     private void setupRecyclerView() {
@@ -123,32 +132,8 @@ public class AdminOrdersFragment extends Fragment implements
         });
     }
 
-    private void setupStatusFilter() {
-        // Setup dropdown for status filter
-        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            orderStatuses
-        );
-        statusFilterSpinner.setAdapter(statusAdapter);
-        statusFilterSpinner.setText("All Status", false);
-
-        statusFilterSpinner.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedStatus = orderStatuses[position];
-            if (selectedStatus.equals("All Status")) {
-                currentStatusFilter = "";
-            } else {
-                currentStatusFilter = selectedStatus;
-            }
-            performSearch(searchEditText.getText().toString().trim());
-        });
-
-        // Setup status chips for quick filtering
-        setupStatusChips();
-    }
-
     private void setupStatusChips() {
-        String[] quickStatuses = {"All", "Pending", "Processing", "Delivered"};
+        String[] quickStatuses = {"All", "Pending", "Processing", "Delivered", "Cancelled"};
 
         for (String status : quickStatuses) {
             Chip chip = new Chip(getContext());
@@ -172,7 +157,6 @@ public class AdminOrdersFragment extends Fragment implements
 
                     // Update filter
                     currentStatusFilter = status.equals("All") ? "" : status;
-                    statusFilterSpinner.setText(status.equals("All") ? "All Status" : status, false);
                     performSearch(searchEditText.getText().toString().trim());
                 }
             });
@@ -181,29 +165,29 @@ public class AdminOrdersFragment extends Fragment implements
         }
     }
 
+    private void setupSortFilter() {
+        // Setup dropdown for sort filter
+        ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            sortOptions
+        );
+        sortFilterSpinner.setAdapter(sortAdapter);
+        sortFilterSpinner.setText("Default", false);
+
+        sortFilterSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedSort = sortOptions[position];
+            currentSortFilter = selectedSort;
+            performSearch(searchEditText.getText().toString().trim());
+        });
+    }
+
     private void performSearch(String query) {
-        if (query.isEmpty() && currentStatusFilter.isEmpty()) {
+        if (query.isEmpty() && currentStatusFilter.isEmpty() && currentSortFilter.equals("Default")) {
             viewModel.loadOrders();
         } else {
-            // Áp dụng filter trạng thái trước (nếu có)
-            if (!currentStatusFilter.isEmpty()) {
-                viewModel.filterByStatus(currentStatusFilter);
-            }
-
-            // Sau đó search theo query (nếu có)
-            if (!query.isEmpty()) {
-                viewModel.searchOrders(query);
-            }
-
-            // Nếu chỉ có query mà không có filter status
-            if (!query.isEmpty() && currentStatusFilter.isEmpty()) {
-                viewModel.searchOrders(query);
-            }
-
-            // Nếu chỉ có filter status mà không có query
-            if (query.isEmpty() && !currentStatusFilter.isEmpty()) {
-                viewModel.filterByStatus(currentStatusFilter);
-            }
+            // Apply filters and search
+            viewModel.searchAndFilterOrders(query, currentStatusFilter, currentSortFilter);
         }
     }
 
@@ -231,7 +215,7 @@ public class AdminOrdersFragment extends Fragment implements
 
         viewModel.getOperationSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Order status updated successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Status updated successfully", Toast.LENGTH_SHORT).show();
                 performSearch(searchEditText.getText().toString().trim());
             }
         });
@@ -250,8 +234,13 @@ public class AdminOrdersFragment extends Fragment implements
 
     @Override
     public void onViewOrderDetails(Order order) {
-        // Navigate to order detail view
-        Toast.makeText(getContext(), "View order #" + order.getId(), Toast.LENGTH_SHORT).show();
+        // Navigate to order detail view - sử dụng admin version để ẩn buy again button
+        OrderDetailFragment detailFragment = OrderDetailFragment.newInstanceForAdmin(order.getId());
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -259,11 +248,71 @@ public class AdminOrdersFragment extends Fragment implements
         showUpdateStatusDialog(order);
     }
 
+    @Override
+    public void onUpdatePaymentStatus(Order order) {
+        showUpdatePaymentStatusDialog(order);
+    }
+
     private void showUpdateStatusDialog(Order order) {
         AdminOrderStatusDialogFragment dialog = AdminOrderStatusDialogFragment.newInstance(order);
         dialog.setOnStatusUpdatedListener((orderId, newStatus, note) ->
             viewModel.updateOrderStatus(orderId, newStatus));
         dialog.show(getParentFragmentManager(), "UpdateOrderStatusDialog");
+    }
+
+    private void showUpdatePaymentStatusDialog(Order order) {
+        if (order.getPayments() == null || order.getPayments().isEmpty()) {
+            Toast.makeText(getContext(), "No payment found for this order", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get payment info from the first payment
+        Order.Payment payment = order.getPayments().get(0);
+        int paymentId = payment.getId();
+        String currentStatus = payment.getPaymentStatus();
+        
+        // Check if payment status is already final
+        if ("Paid".equalsIgnoreCase(currentStatus) || "Cancelled".equalsIgnoreCase(currentStatus)) {
+            Toast.makeText(getContext(), "Payment status '" + currentStatus + "' cannot be changed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Update Payment Status")
+                .setMessage("Order #" + order.getId() + 
+                           "\nPayment ID: " + paymentId +
+                           "\nCurrent Status: " + currentStatus +
+                           "\n\nChoose new payment status:")
+                .setPositiveButton("Mark as Paid", (dialog, which) -> {
+                    showPaymentUpdateConfirmation(paymentId, "Paid", "Paid - Payment completed successfully", order);
+                })
+                .setNegativeButton("Mark as Cancelled", (dialog, which) -> {
+                    showPaymentUpdateConfirmation(paymentId, "Cancelled", "Cancelled - Payment was cancelled", order);
+                })
+                .setNeutralButton("Cancel", null)
+                .show();
+    }
+
+    private void showPaymentUpdateConfirmation(int paymentId, String newStatus, String statusDescription, Order order) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Confirm Payment Update")
+                .setMessage("Are you sure you want to update payment status to:\n\n" + 
+                           statusDescription + "\n\n" +
+                           "Order #" + order.getId() + 
+                           "\nPayment ID: " + paymentId)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    updatePaymentStatus(paymentId, newStatus);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void updatePaymentStatus(int paymentId, String newStatus) {
+        // Show progress
+        Toast.makeText(getContext(), "Updating payment status to " + newStatus + "...", Toast.LENGTH_SHORT).show();
+        
+        // Call payment API to update status
+        viewModel.updatePaymentStatus(paymentId, newStatus);
     }
 
     @Override
