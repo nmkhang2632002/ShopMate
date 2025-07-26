@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
     <application
         android:name=".ShopMateApplication"
         android:allowBackup="true"
@@ -15,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShopMate"
         tools:targetApi="31">
+            
         <activity
             android:name=".ui.activities.LoginActivity"
             android:exported="true">
@@ -49,12 +57,16 @@
                 <data android:scheme="shopmate" android:host="payment-result" />
             </intent-filter>
         </activity>
-
-        <!-- Test Activity for Admin Switch Feature -->
-        <activity
-            android:name=".test.TestAdminSwitchActivity"
-            android:exported="false"
-            android:label="Test Admin Switch" />
+        
+        <!-- Boot Completed Receiver -->
+        <receiver
+            android:name=".receiver.BootCompletedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

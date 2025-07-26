@@ -1,13 +1,19 @@
 package com.example.shopmate.ui.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +27,7 @@ import com.example.shopmate.util.AuthManager;
 import com.example.shopmate.ui.fragments.CartFragment;
 import com.example.shopmate.ui.fragments.ChatFragment;
 import com.example.shopmate.ui.fragments.HomeFragment;
+import com.example.shopmate.ui.fragments.MapFragment;
 import com.example.shopmate.ui.fragments.ProfileFragment;
 import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
@@ -31,6 +38,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.example.shopmate.util.BadgeUtils;
+import com.example.shopmate.util.NotificationUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabAdmin;
     private CartViewModel cartViewModel;
     private UserApi userApi;
+    
+    // Permission request launcher
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
                 setCurrentFragment(new HomeFragment());
-            } else if (id == R.id.nav_search) {
-                setCurrentFragment(new HomeFragment()); // Replace with SearchFragment when available
+            } else if (id == R.id.nav_map) {
+                setCurrentFragment(new MapFragment());
             } else if (id == R.id.nav_cart) {
                 setCurrentFragment(new CartFragment());
             } else if (id == R.id.nav_chat) {
@@ -97,6 +109,32 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+        
+        // Initialize permission launcher
+        requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (!isGranted) {
+                    Toast.makeText(this, 
+                        "Badge notification permission denied. Some features may not work properly.", 
+                        Toast.LENGTH_SHORT).show();
+                }
+            }
+        );
+        
+        // Check and request notification permission for Android 13+
+        checkNotificationPermission();
+    }
+    
+    private void checkNotificationPermission() {
+        // For Android 13+ (API level 33+), check POST_NOTIFICATIONS permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Request the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
     }
 
     @Override
@@ -123,13 +161,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void redirectToLogin() {
+        // Xóa badge và thông báo trước khi chuyển đến màn hình đăng nhập
+        BadgeUtils.removeBadge(this);
+        NotificationUtils.cancelBadgeNotification(this);
+        BadgeUtils.clearSavedBadgeCount(this);
+        
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
-    private void logout() {
+    public void logout() {
+        // Xóa badge và thông báo khi đăng xuất
+        BadgeUtils.forceRemoveBadge(this);
+        NotificationUtils.cancelBadgeNotification(this);
+        
         authManager.logout();
         redirectToLogin();
     }
@@ -143,6 +190,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             // Refresh cart data when activity resumes
             cartViewModel.loadCart();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        // Kiểm tra nếu đang đăng xuất, xóa badge
+        if (!authManager.isLoggedIn()) {
+            BadgeUtils.forceRemoveBadge(this);
+            NotificationUtils.cancelBadgeNotification(this);
         }
     }
 
@@ -174,6 +232,21 @@ public class MainActivity extends AppCompatActivity {
         
         // Update bottom navigation
         bottomNavigationView.setSelectedItemId(R.id.nav_chat);
+    }
+    
+    public void navigateToMap() {
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
+        // Set map fragment
+        MapFragment mapFragment = new MapFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flFragment, mapFragment)
+                .commit();
+        
+        // Update bottom navigation
+        bottomNavigationView.setSelectedItemId(R.id.nav_map);
     }
 
     private void handlePaymentResultNavigation() {
