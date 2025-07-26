@@ -66,7 +66,4 @@ dependencies {
     // Additional dependencies for admin system
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
-    
-    // ShortcutBadger for app icon badge
-    implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
 }
