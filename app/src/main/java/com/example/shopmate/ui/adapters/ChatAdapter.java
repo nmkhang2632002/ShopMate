@@ -23,15 +23,28 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class ChatAdapter extends ListAdapter<ChatMessage, ChatAdapter.MessageViewHolder> {
-    private final Context context;
     private final int currentUserId;
     private static final int VIEW_TYPE_SENT = 1;
     private static final int VIEW_TYPE_RECEIVED = 2;
+    
+    // Constants for AI and Admin IDs
+    public static final int AI_ID = 23;
+    public static final int ADMIN_ID = 40;
 
+    /**
+     * Constructor that gets the current user ID from AuthManager
+     */
     public ChatAdapter(Context context) {
         super(new MessageDiffCallback());
-        this.context = context;
         this.currentUserId = AuthManager.getInstance(context).getUserId();
+    }
+    
+    /**
+     * Constructor that accepts a user ID directly (useful for admin chat)
+     */
+    public ChatAdapter(int userId) {
+        super(new MessageDiffCallback());
+        this.currentUserId = userId;
     }
 
     @Override
@@ -64,6 +77,7 @@ public class ChatAdapter extends ListAdapter<ChatMessage, ChatAdapter.MessageVie
         private final TextView textViewSender;
         private final CardView cardViewMessage;
         private final ConstraintLayout constraintLayout;
+        private final Context context;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +86,7 @@ public class ChatAdapter extends ListAdapter<ChatMessage, ChatAdapter.MessageVie
             textViewSender = itemView.findViewById(R.id.textViewSender);
             cardViewMessage = itemView.findViewById(R.id.cardViewMessage);
             constraintLayout = (ConstraintLayout) itemView;
+            context = itemView.getContext();
         }
 
         public void bind(ChatMessage message, int viewType) {
@@ -109,10 +124,13 @@ public class ChatAdapter extends ListAdapter<ChatMessage, ChatAdapter.MessageVie
                 
                 // Show sender name for received messages
                 textViewSender.setVisibility(View.VISIBLE);
-                if (message.getUserId() == ChatRepository.AI_ID || message.isFromAI()) {
+                if (message.getUserId() == AI_ID || message.isFromAI()) {
                     textViewSender.setText(R.string.ai_assistant);
-                } else if (message.getUserId() == ChatRepository.ADMIN_ID) {
+                } else if (message.getUserId() == ADMIN_ID) {
                     textViewSender.setText(R.string.customer_support);
+                } else if (currentUserId == ADMIN_ID) {
+                    // If current user is admin, show customer name
+                    textViewSender.setText("Customer");
                 } else {
                     textViewSender.setVisibility(View.GONE);
                 }

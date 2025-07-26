@@ -1,6 +1,7 @@
 package com.example.shopmate.ui.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,7 +108,7 @@ public class ChatFragment extends Fragment {
             }
             
             adapter.submitList(new ArrayList<>(filteredMessages));
-            
+           
             if (filteredMessages.isEmpty()) {
                 textViewEmpty.setVisibility(View.VISIBLE);
             } else {
@@ -166,8 +167,10 @@ public class ChatFragment extends Fragment {
                     }
                     
                     adapter.submitList(new ArrayList<>(filteredMessages));
-                    
-                    if (!filteredMessages.isEmpty()) {
+                    if (filteredMessages.isEmpty()) {
+                        textViewEmpty.setVisibility(View.VISIBLE);
+                    } else {
+                        textViewEmpty.setVisibility(View.GONE);
                         recyclerView.smoothScrollToPosition(filteredMessages.size() - 1);
                     }
                 }
