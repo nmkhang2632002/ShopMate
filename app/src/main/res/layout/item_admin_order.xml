@@ -116,7 +116,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_marginStart="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -133,6 +134,34 @@
                     android:textStyle="bold"
                     android:textColor="@color/admin_text_primary"
                     tools:text="3 items" />
+
+            </LinearLayout>
+
+            <!-- Payment Status -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/paymentStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/success"
+                    android:background="#FFE0E0E0"
+                    android:padding="4dp"
+                    tools:text="Paid" />
 
             </LinearLayout>
 

@@ -55,7 +55,7 @@ public class AdminOrdersFragment extends Fragment implements
 
     private String currentStatusFilter = "";
     private final String[] orderStatuses = {
-        "All Status", "Pending", "Processing", "Shipped", "Delivered", "Cancelled"
+        "All Status", "Pending", "Processing", "Delivered", "Cancelled"
     };
 
     @Override

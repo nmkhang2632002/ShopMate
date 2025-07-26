@@ -64,6 +64,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
         private TextView orderDate;
         private TextView totalAmount;
         private TextView itemCount;
+        private TextView paymentStatus;
         private Chip statusChip;
         private MaterialButton btnViewDetails;
         private MaterialButton btnUpdateStatus;
@@ -77,6 +78,7 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
             orderDate = itemView.findViewById(R.id.orderDate);
             totalAmount = itemView.findViewById(R.id.totalAmount);
             itemCount = itemView.findViewById(R.id.itemCount);
+            paymentStatus = itemView.findViewById(R.id.paymentStatus);
             statusChip = itemView.findViewById(R.id.statusChip);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
             btnUpdateStatus = itemView.findViewById(R.id.btnUpdateStatus);
@@ -88,6 +90,16 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
             orderDate.setText(DateUtils.formatDate(order.getOrderDate()));
             totalAmount.setText(CurrencyUtils.formatPrice(order.getTotalAmount()));
             itemCount.setText(order.getTotalItems() + " items");
+
+            // Set payment status
+            if (order.getPayments() != null && !order.getPayments().isEmpty()) {
+                Order.Payment payment = order.getPayments().get(0);
+                paymentStatus.setText(payment.getPaymentStatus());
+                setPaymentStatusColor(paymentStatus, payment.getPaymentStatus());
+            } else {
+                paymentStatus.setText("No Payment");
+                paymentStatus.setTextColor(itemView.getContext().getColor(R.color.text_secondary));
+            }
 
             // Set status chip
             statusChip.setText(order.getStatus());
@@ -138,10 +150,6 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
                     chip.setChipBackgroundColorResource(R.color.status_processing);
                     chip.setTextColor(itemView.getContext().getColor(R.color.status_processing_text));
                     break;
-                case "shipped":
-                    chip.setChipBackgroundColorResource(R.color.status_shipped);
-                    chip.setTextColor(itemView.getContext().getColor(R.color.status_shipped_text));
-                    break;
                 case "delivered":
                     chip.setChipBackgroundColorResource(R.color.status_delivered);
                     chip.setTextColor(itemView.getContext().getColor(R.color.status_delivered_text));
@@ -153,6 +161,24 @@ public class AdminOrderAdapter extends RecyclerView.Adapter<AdminOrderAdapter.Or
                 default:
                     chip.setChipBackgroundColorResource(R.color.chip_background);
                     chip.setTextColor(itemView.getContext().getColor(R.color.text_primary));
+                    break;
+            }
+        }
+
+        private void setPaymentStatusColor(TextView textView, String status) {
+            switch (status.toLowerCase()) {
+                case "paid":
+                    textView.setTextColor(itemView.getContext().getColor(R.color.success));
+                    break;
+                case "pending":
+                    textView.setTextColor(itemView.getContext().getColor(R.color.warning));
+                    break;
+                case "cancelled":
+                case "failed":
+                    textView.setTextColor(itemView.getContext().getColor(R.color.error));
+                    break;
+                default:
+                    textView.setTextColor(itemView.getContext().getColor(R.color.text_secondary));
                     break;
             }
         }
