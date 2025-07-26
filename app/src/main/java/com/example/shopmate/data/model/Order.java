@@ -21,6 +21,15 @@ public class Order implements Serializable {
 
     @SerializedName("userEmail")
     private String userEmail;
+    
+    @SerializedName("username")
+    private String username;
+    
+    @SerializedName("phoneNumber")
+    private String phoneNumber;
+    
+    @SerializedName("email")
+    private String email;
 
     @SerializedName("paymentMethod")
     private String paymentMethod;
@@ -131,4 +140,14 @@ public class Order implements Serializable {
             return paymentStatus;
         }
     }
+    
+    // Getter và Setter cho các field mới
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }

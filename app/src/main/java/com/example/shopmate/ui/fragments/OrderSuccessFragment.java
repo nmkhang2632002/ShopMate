@@ -16,6 +16,7 @@ import com.example.shopmate.data.model.Order;
 import com.example.shopmate.ui.activities.MainActivity;
 import com.google.android.material.button.MaterialButton;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -57,6 +58,21 @@ public class OrderSuccessFragment extends Fragment {
         args.putString(ARG_ORDER_DATE, orderDateString);
 
         args.putString(ARG_PAYMENT_METHOD, order.getPaymentMethod());
+        
+        // Add customer information from API response
+        args.putString(ARG_USERNAME, order.getUsername() != null ? order.getUsername() : "N/A");
+        args.putString(ARG_PHONE_NUMBER, order.getPhoneNumber() != null ? order.getPhoneNumber() : "N/A");
+        args.putString(ARG_BILLING_ADDRESS, order.getBillingAddress() != null ? order.getBillingAddress() : "N/A");
+        args.putString(ARG_ORDER_STATUS, order.getOrderStatus() != null ? order.getOrderStatus() : "Processing");
+        
+        // Format total amount
+        String totalAmountStr = "N/A";
+        if (order.getTotalAmount() > 0) {
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+            totalAmountStr = formatter.format(order.getTotalAmount()) + "₫";
+        }
+        args.putString(ARG_TOTAL_AMOUNT, totalAmountStr);
+        
         args.putBoolean(ARG_IS_VNPAY, false);
         fragment.setArguments(args);
         return fragment;
