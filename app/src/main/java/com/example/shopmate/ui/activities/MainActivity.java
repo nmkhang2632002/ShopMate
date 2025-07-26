@@ -2,8 +2,10 @@ package com.example.shopmate.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -11,6 +13,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shopmate.R;
+import com.example.shopmate.data.model.ApiResponse;
+import com.example.shopmate.data.model.User;
+import com.example.shopmate.data.network.RetrofitClient;
+import com.example.shopmate.data.network.UserApi;
 import com.example.shopmate.util.AuthManager;
 import com.example.shopmate.ui.fragments.CartFragment;
 import com.example.shopmate.ui.fragments.ChatFragment;
@@ -20,12 +26,20 @@ import com.example.shopmate.ui.fragments.OrderSuccessFragment;
 import com.example.shopmate.ui.fragments.PaymentFailedFragment;
 import com.example.shopmate.viewmodel.CartViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private AuthManager authManager;
     private BottomNavigationView bottomNavigationView;
+    private FloatingActionButton fabAdmin;
     private CartViewModel cartViewModel;
+    private UserApi userApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +56,12 @@ public class MainActivity extends AppCompatActivity {
         
         setContentView(R.layout.activity_main);
 
-        // Initialize ViewModels
+        // Initialize ViewModels and APIs
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
+        userApi = RetrofitClient.getInstance().create(UserApi.class);
         
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        fabAdmin = findViewById(R.id.fabAdmin);
 
         Fragment homeFragment = new HomeFragment();
 
@@ -53,6 +69,15 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             setCurrentFragment(homeFragment);
         }
+
+        // Check if user is admin and show/hide admin FAB
+        checkUserRoleAndShowAdminFAB();
+
+        // Setup FAB click listener
+        fabAdmin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+            startActivity(intent);
+        });
 
         // Handle payment result navigation
         handlePaymentResultNavigation();
@@ -202,6 +227,54 @@ public class MainActivity extends AppCompatActivity {
             setCurrentFragment(new CartFragment());
             bottomNavigationView.setSelectedItemId(R.id.nav_cart);
         }
+    }
+
+    /**
+     * Check if current user is admin and show/hide admin FAB accordingly
+     */
+    private void checkUserRoleAndShowAdminFAB() {
+        int userId = authManager.getUserId();
+        if (userId == -1) {
+            // User not logged in, hide FAB
+            fabAdmin.setVisibility(View.GONE);
+            return;
+        }
+
+        userApi.getUserById(userId).enqueue(new Callback<ApiResponse<User>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<User>> call, Response<ApiResponse<User>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<User> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
+                        User user = apiResponse.getData();
+                        String role = user.getRole();
+                        
+                        Log.d(TAG, "User role: " + role);
+                        
+                        // Show FAB only if user is ADMIN
+                        if ("ADMIN".equalsIgnoreCase(role)) {
+                            fabAdmin.setVisibility(View.VISIBLE);
+                            Log.d(TAG, "Admin FAB shown for user: " + user.getUsername());
+                        } else {
+                            fabAdmin.setVisibility(View.GONE);
+                            Log.d(TAG, "Admin FAB hidden for non-admin user: " + user.getUsername());
+                        }
+                    } else {
+                        Log.w(TAG, "Failed to get user data: " + apiResponse.getMessage());
+                        fabAdmin.setVisibility(View.GONE);
+                    }
+                } else {
+                    Log.w(TAG, "Failed to fetch user role: " + response.code());
+                    fabAdmin.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<User>> call, Throwable t) {
+                Log.e(TAG, "Error fetching user role: " + t.getMessage());
+                fabAdmin.setVisibility(View.GONE);
+            }
+        });
     }
     
     public CartViewModel getCartViewModel() {

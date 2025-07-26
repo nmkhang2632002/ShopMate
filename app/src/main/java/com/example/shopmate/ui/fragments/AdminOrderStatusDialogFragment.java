@@ -32,7 +32,7 @@ public class AdminOrderStatusDialogFragment extends DialogFragment {
     private MaterialButton btnCancel;
 
     private final String[] orderStatuses = {
-        "Pending", "Processing", "Shipped", "Delivered", "Cancelled"
+        "Pending", "Processing", "Delivered", "Cancelled"
     };
 
     public interface OnStatusUpdatedListener {

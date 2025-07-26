@@ -52,6 +52,13 @@ public class AdminActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        
+        // Setup Home FAB
+        findViewById(R.id.fabHome).setOnClickListener(v -> {
+            Intent intent = new Intent(AdminActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
     }
 
     private void setupToolbar() {

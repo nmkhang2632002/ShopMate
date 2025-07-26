@@ -219,10 +219,30 @@ public class AdminOrderViewModel extends ViewModel {
         isLoading.setValue(true);
         errorMessage.setValue("");
 
-        // Truyền đủ 2 tham số cho UpdateOrderStatusRequest (status và note)
-        UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(newStatus, "Status updated by admin");
+        Call<ApiResponse<Order>> call;
+        
+        // Use specific endpoints based on status
+        switch (newStatus.toLowerCase()) {
+            case "processing":
+                call = orderApi.updateOrderToProcessing(orderId);
+                break;
+            case "delivered":
+                call = orderApi.updateOrderToDelivered(orderId);
+                break;
+            case "cancelled":
+                call = orderApi.updateOrderToCancelled(orderId);
+                break;
+            case "failed":
+                call = orderApi.updateOrderToFailed(orderId, "Status updated by admin");
+                break;
+            default:
+                // Fallback to legacy endpoint with request body
+                UpdateOrderStatusRequest request = new UpdateOrderStatusRequest(newStatus, "Status updated by admin");
+                call = orderApi.updateOrderStatus(orderId, request);
+                break;
+        }
 
-        orderApi.updateOrderStatus(orderId, request).enqueue(new Callback<ApiResponse<Order>>() {
+        call.enqueue(new Callback<ApiResponse<Order>>() {
             @Override
             public void onResponse(Call<ApiResponse<Order>> call, Response<ApiResponse<Order>> response) {
                 isLoading.setValue(false);

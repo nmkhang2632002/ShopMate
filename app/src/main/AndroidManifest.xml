@@ -49,6 +49,12 @@
                 <data android:scheme="shopmate" android:host="payment-result" />
             </intent-filter>
         </activity>
+
+        <!-- Test Activity for Admin Switch Feature -->
+        <activity
+            android:name=".test.TestAdminSwitchActivity"
+            android:exported="false"
+            android:label="Test Admin Switch" />
     </application>
 
 </manifest>
