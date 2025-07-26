@@ -24,6 +24,9 @@ import com.example.shopmate.ui.activities.AdminActivity;
 import com.example.shopmate.ui.adapters.ChatAdapter;
 import com.example.shopmate.viewmodel.AdminChatViewModel;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class AdminChatDetailFragment extends Fragment {
 
     private AdminChatViewModel viewModel;
@@ -37,6 +40,8 @@ public class AdminChatDetailFragment extends Fragment {
     private ProgressBar progressBar;
     private TextView tvEmptyState;
     private ChatAdapter chatAdapter;
+    private Timer autoRefreshTimer;
+    private static final long AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,15 +110,18 @@ public class AdminChatDetailFragment extends Fragment {
         
         // Observe chat messages
         viewModel.getChatMessages().observe(getViewLifecycleOwner(), messages -> {
-            chatAdapter.submitList(messages);
-            
-            // Scroll to bottom
-            if (messages != null && !messages.isEmpty()) {
-                rvChatMessages.scrollToPosition(messages.size() - 1);
-                hideEmptyState();
-            } else {
-                showEmptyState();
-            }
+            chatAdapter.submitList(messages, () -> {
+                // Callback được gọi sau khi adapter đã update xong
+                if (messages != null && !messages.isEmpty()) {
+                    hideEmptyState();
+                    // Tự động scroll xuống cuối với smooth animation
+                    rvChatMessages.post(() -> {
+                        rvChatMessages.smoothScrollToPosition(messages.size() - 1);
+                    });
+                } else {
+                    showEmptyState();
+                }
+            });
         });
         
         // Observe loading state
@@ -163,5 +171,45 @@ public class AdminChatDetailFragment extends Fragment {
     
     private void showError(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        startAutoRefresh();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoRefresh();
+    }
+    
+    private void startAutoRefresh() {
+        stopAutoRefresh(); // Stop any existing timer
+        ChatCustomer customer = viewModel.getSelectedCustomer().getValue();
+        if (customer != null) {
+            autoRefreshTimer = new Timer();
+            autoRefreshTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            ChatCustomer currentCustomer = viewModel.getSelectedCustomer().getValue();
+                            if (currentCustomer != null) {
+                                viewModel.loadChatHistory(currentCustomer.getId());
+                            }
+                        });
+                    }
+                }
+            }, AUTO_REFRESH_INTERVAL, AUTO_REFRESH_INTERVAL);
+        }
+    }
+    
+    private void stopAutoRefresh() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.cancel();
+            autoRefreshTimer = null;
+        }
     }
 } 

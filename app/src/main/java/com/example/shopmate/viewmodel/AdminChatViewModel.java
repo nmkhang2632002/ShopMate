@@ -140,18 +140,34 @@ public class AdminChatViewModel extends AndroidViewModel {
         chatApi.sendMessage(message).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (!response.isSuccessful()) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Message sent successfully, refreshing chat history");
+                    // Delay một chút trước khi refresh để đảm bảo server đã xử lý xong
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(1000); // Wait 1 second
+                            if (getApplication() != null) {
+                                ((AndroidViewModel) AdminChatViewModel.this).getApplication().getMainExecutor().execute(() -> {
+                                    loadChatHistory(customer.getId());
+                                });
+                            }
+                        } catch (InterruptedException e) {
+                            // Handle interruption
+                        }
+                    }).start();
+                } else {
+                    Log.e(TAG, "Failed to send message: " + response.code() + " " + response.message());
                     errorMessage.setValue("Failed to send message");
-                    // Refresh chat history to get correct state
-                  
+                    // Refresh chat history để lấy trạng thái chính xác
+                    loadChatHistory(customer.getId());
                 }
-                loadChatHistory(customer.getId());
             }
             
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Network error sending message", t);
                 errorMessage.setValue("Network error: " + t.getMessage());
-                // Refresh chat history to get correct state
+                // Refresh chat history để lấy trạng thái chính xác
                 loadChatHistory(customer.getId());
             }
         });

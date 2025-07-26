@@ -27,6 +27,8 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 public class ChatFragment extends Fragment {
@@ -40,6 +42,8 @@ public class ChatFragment extends Fragment {
     private TabLayout tabLayout;
     
     private boolean showingAdminChat = false;
+    private Timer autoRefreshTimer;
+    private static final long AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
 
     public ChatFragment() {
         // Required empty public constructor
@@ -107,14 +111,26 @@ public class ChatFragment extends Fragment {
                         .collect(Collectors.toList());
             }
             
-            adapter.submitList(new ArrayList<>(filteredMessages));
-           
-            if (filteredMessages.isEmpty()) {
-                textViewEmpty.setVisibility(View.VISIBLE);
-            } else {
-                textViewEmpty.setVisibility(View.GONE);
-                recyclerView.smoothScrollToPosition(filteredMessages.size() - 1);
-            }
+            // Lưu số lượng message hiện tại trước khi update
+            int previousCount = adapter.getItemCount();
+            
+            adapter.submitList(new ArrayList<>(filteredMessages), () -> {
+                // Callback được gọi sau khi adapter đã update xong
+                if (filteredMessages.isEmpty()) {
+                    textViewEmpty.setVisibility(View.VISIBLE);
+                } else {
+                    textViewEmpty.setVisibility(View.GONE);
+                    
+                    // Tự động scroll xuống cuối khi có message mới
+                    int newCount = filteredMessages.size();
+                    if (newCount > 0) {
+                        // Sử dụng post để đảm bảo RecyclerView đã layout xong
+                        recyclerView.post(() -> {
+                            recyclerView.smoothScrollToPosition(newCount - 1);
+                        });
+                    }
+                }
+            });
         });
         
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
@@ -166,13 +182,18 @@ public class ChatFragment extends Fragment {
                                 .collect(Collectors.toList());
                     }
                     
-                    adapter.submitList(new ArrayList<>(filteredMessages));
-                    if (filteredMessages.isEmpty()) {
-                        textViewEmpty.setVisibility(View.VISIBLE);
-                    } else {
-                        textViewEmpty.setVisibility(View.GONE);
-                        recyclerView.smoothScrollToPosition(filteredMessages.size() - 1);
-                    }
+                    adapter.submitList(new ArrayList<>(filteredMessages), () -> {
+                        // Callback được gọi sau khi adapter đã update xong
+                        if (filteredMessages.isEmpty()) {
+                            textViewEmpty.setVisibility(View.VISIBLE);
+                        } else {
+                            textViewEmpty.setVisibility(View.GONE);
+                            // Tự động scroll xuống cuối khi chuyển tab
+                            recyclerView.post(() -> {
+                                recyclerView.smoothScrollToPosition(filteredMessages.size() - 1);
+                            });
+                        }
+                    });
                 }
             }
 
@@ -192,5 +213,34 @@ public class ChatFragment extends Fragment {
     public void onResume() {
         super.onResume();
         viewModel.loadChatHistory();
+        startAutoRefresh();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoRefresh();
+    }
+    
+    private void startAutoRefresh() {
+        stopAutoRefresh(); // Stop any existing timer
+        autoRefreshTimer = new Timer();
+        autoRefreshTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        viewModel.loadChatHistory();
+                    });
+                }
+            }
+        }, AUTO_REFRESH_INTERVAL, AUTO_REFRESH_INTERVAL);
+    }
+    
+    private void stopAutoRefresh() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.cancel();
+            autoRefreshTimer = null;
+        }
     }
 } 
