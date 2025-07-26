@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Admin Theme for API 27+ -->
+    <style name="Theme.ShopMate.Admin" parent="Base.Theme.ShopMate">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="android:statusBarColor">@color/primary_color</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
