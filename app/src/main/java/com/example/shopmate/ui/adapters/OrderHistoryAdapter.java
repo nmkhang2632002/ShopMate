@@ -96,14 +96,24 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             billingAddressText.setText(order.getBillingAddress());
             
             // Total Amount and Payment Status
+            android.util.Log.d("OrderAdapter", "Order #" + order.getId() + " - Payments: " + 
+                (order.getPayments() != null ? order.getPayments().size() : "null"));
+            
             if (order.getPayments() != null && !order.getPayments().isEmpty()) {
                 Order.Payment payment = order.getPayments().get(0);
                 totalAmountText.setText(CurrencyUtils.formatVND(payment.getAmount()));
-                paymentStatusText.setText(payment.getPaymentStatus());
-                setPaymentStatusColor(paymentStatusText, payment.getPaymentStatus());
+                
+                String paymentStatus = payment.getPaymentStatus();
+                android.util.Log.d("OrderAdapter", "Order #" + order.getId() + " - Payment Status: '" + paymentStatus + "'");
+                
+                paymentStatusText.setText(paymentStatus);
+                paymentStatusText.setVisibility(android.view.View.VISIBLE);
+                setPaymentStatusColor(paymentStatusText, paymentStatus);
             } else {
+                android.util.Log.w("OrderAdapter", "Order #" + order.getId() + " - No payments found!");
                 totalAmountText.setText("N/A");
                 paymentStatusText.setText("No Payment");
+                paymentStatusText.setVisibility(android.view.View.VISIBLE);
                 paymentStatusText.setTextColor(itemView.getContext().getColor(R.color.text_secondary));
             }
         }

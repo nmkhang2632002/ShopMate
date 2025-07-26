@@ -2,6 +2,7 @@ package com.example.shopmate.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shopmate.R;
 import com.example.shopmate.util.AuthManager;
+import com.example.shopmate.util.BadgeUtils;
+import com.example.shopmate.util.NotificationUtils;
 import com.example.shopmate.viewmodel.AuthViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -32,6 +35,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Xóa badge khi hiển thị màn hình đăng nhập
+        clearBadges();
+        
         setContentView(R.layout.activity_login);
 
         initViews();
@@ -39,6 +46,40 @@ public class LoginActivity extends AppCompatActivity {
         checkIfAlreadyLoggedIn();
         setupObservers();
         setupClickListeners();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Xóa badge khi quay lại màn hình đăng nhập
+        clearBadges();
+        
+        // Thử lại sau 500ms để đảm bảo badge được xóa
+        new Handler().postDelayed(this::clearBadges, 500);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        // Xóa badge khi màn hình đăng nhập bị tạm dừng
+        new Handler().postDelayed(() -> {
+            BadgeUtils.forceRemoveBadge(this);
+            NotificationUtils.cancelBadgeNotification(this);
+        }, 100);
+    }
+    
+    private void clearBadges() {
+        // Xóa badge và thông báo bằng mọi cách có thể
+        BadgeUtils.forceRemoveBadge(this);
+        NotificationUtils.cancelBadgeNotification(this);
+        
+        // Thử xóa badge một lần nữa để đảm bảo
+        new Handler().postDelayed(() -> {
+            BadgeUtils.forceRemoveBadge(this);
+            NotificationUtils.cancelBadgeNotification(this);
+        }, 100);
     }
 
     private void initViews() {

@@ -43,5 +43,19 @@
             app:itemHorizontalTranslationEnabled="false" />
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Admin FAB - only visible for admin users -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdmin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_admin_panel"
+        android:contentDescription="Go to Admin Dashboard"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/primary_color" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

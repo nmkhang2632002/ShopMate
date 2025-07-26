@@ -43,15 +43,26 @@ public class AdminActivity extends AppCompatActivity {
         setupToolbar();
         setupBottomNavigation();
 
-        // Set initial fragment
+        // Set initial fragment - Orders Management first
         if (savedInstanceState == null) {
-            setCurrentFragment(new AdminProductsFragment());
+            setCurrentFragment(new AdminOrdersFragment());
+            bottomNavigationView.setSelectedItemId(R.id.nav_admin_orders);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle("Orders Management");
+            }
         }
     }
 
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        
+        // Setup Home FAB
+        findViewById(R.id.fabHome).setOnClickListener(v -> {
+            Intent intent = new Intent(AdminActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
     }
 
     private void setupToolbar() {

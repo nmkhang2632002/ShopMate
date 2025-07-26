@@ -185,7 +185,9 @@
                     android:text="Paid"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="@color/success" />
+                    android:textColor="@color/success"
+                    android:background="#FFE0E0E0"
+                    android:padding="4dp" />
 
             </LinearLayout>
 
