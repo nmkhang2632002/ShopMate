@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shopmate.R;
 import com.example.shopmate.util.AuthManager;
@@ -16,6 +17,8 @@ import com.example.shopmate.ui.fragments.AdminProductsFragment;
 import com.example.shopmate.ui.fragments.AdminCategoriesFragment;
 import com.example.shopmate.ui.fragments.AdminOrdersFragment;
 import com.example.shopmate.ui.fragments.AdminProfileFragment;
+import com.example.shopmate.ui.fragments.AdminChatFragment;
+import com.example.shopmate.viewmodel.AdminChatViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class AdminActivity extends AppCompatActivity {
@@ -23,6 +26,7 @@ public class AdminActivity extends AppCompatActivity {
     private AuthManager authManager;
     private BottomNavigationView bottomNavigationView;
     private Toolbar toolbar;
+    private AdminChatViewModel chatViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,9 @@ public class AdminActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_admin);
+
+        // Initialize ViewModels
+        chatViewModel = new ViewModelProvider(this).get(AdminChatViewModel.class);
 
         initViews();
         setupToolbar();
@@ -77,6 +84,9 @@ public class AdminActivity extends AppCompatActivity {
             } else if (id == R.id.nav_admin_orders) {
                 selectedFragment = new AdminOrdersFragment();
                 title = "Orders Management";
+            } else if (id == R.id.nav_admin_chat) {
+                selectedFragment = new AdminChatFragment();
+                title = "Customer Chat";
             } else if (id == R.id.nav_admin_profile) {
                 selectedFragment = new AdminProfileFragment();
                 title = "Admin Profile";
