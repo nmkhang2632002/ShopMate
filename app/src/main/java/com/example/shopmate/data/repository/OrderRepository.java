@@ -38,16 +38,17 @@ public class OrderRepository {
         orderApi.createOrder(userId, request).enqueue(new Callback<ApiResponse<Order>>() {
             @Override
             public void onResponse(Call<ApiResponse<Order>> call, Response<ApiResponse<Order>> response) {
-                isLoading.setValue(false);
-                
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse<Order> apiResponse = response.body();
                     if (apiResponse.isSuccessful() && apiResponse.getData() != null) {
-                        orderData.setValue(apiResponse.getData());
+                        // After creating order successfully, fetch the latest order to get complete data
+                        fetchLatestOrderForUser(userId, orderData);
                     } else {
+                        isLoading.setValue(false);
                         errorMessage.setValue("Failed to create order: " + apiResponse.getMessage());
                     }
                 } else {
+                    isLoading.setValue(false);
                     errorMessage.setValue("Network error: " + response.code());
                 }
             }
@@ -96,6 +97,35 @@ public class OrderRepository {
         });
 
         return vnpayUrlData;
+    }
+    
+    private void fetchLatestOrderForUser(int userId, MutableLiveData<Order> orderData) {
+        // Fetch user orders to get the latest one with complete data
+        orderApi.getOrdersByUserId(userId).enqueue(new Callback<ApiResponse<List<Order>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Order>>> call, Response<ApiResponse<List<Order>>> response) {
+                isLoading.setValue(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<List<Order>> apiResponse = response.body();
+                    if (apiResponse.isSuccessful() && apiResponse.getData() != null && !apiResponse.getData().isEmpty()) {
+                        // Get the first order (most recent) as orders are usually sorted by date desc
+                        Order latestOrder = apiResponse.getData().get(0);
+                        orderData.setValue(latestOrder);
+                    } else {
+                        errorMessage.setValue("Failed to fetch order details");
+                    }
+                } else {
+                    errorMessage.setValue("Failed to fetch order details: " + response.code());
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<List<Order>>> call, Throwable t) {
+                isLoading.setValue(false);
+                errorMessage.setValue("Network error while fetching order: " + t.getMessage());
+            }
+        });
     }
 
     public LiveData<Boolean> getIsLoading() {
