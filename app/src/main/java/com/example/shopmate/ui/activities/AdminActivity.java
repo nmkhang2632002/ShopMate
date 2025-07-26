@@ -43,9 +43,13 @@ public class AdminActivity extends AppCompatActivity {
         setupToolbar();
         setupBottomNavigation();
 
-        // Set initial fragment
+        // Set initial fragment - Orders Management first
         if (savedInstanceState == null) {
-            setCurrentFragment(new AdminProductsFragment());
+            setCurrentFragment(new AdminOrdersFragment());
+            bottomNavigationView.setSelectedItemId(R.id.nav_admin_orders);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle("Orders Management");
+            }
         }
     }
 
