@@ -49,16 +49,20 @@ public class AdminOrdersFragment extends Fragment implements
     private LinearProgressIndicator progressIndicator;
     private View emptyStateView;
     private ChipGroup statusChipGroup;
-    private AutoCompleteTextView statusFilterSpinner;
-    private TextInputLayout statusFilterLayout;
+    private AutoCompleteTextView sortFilterSpinner;
+    private TextInputLayout sortFilterLayout;
 
     private Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
     private static final int SEARCH_DELAY = 500;
 
     private String currentStatusFilter = "";
+    private String currentSortFilter = "Default";
     private final String[] orderStatuses = {
         "All Status", "Pending", "Processing", "Delivered", "Cancelled"
+    };
+    private final String[] sortOptions = {
+        "Default", "Total Amount (Low to High)", "Total Amount (High to Low)", "Order ID (Low to High)", "Order ID (High to Low)"
     };
 
     @Override
@@ -69,7 +73,8 @@ public class AdminOrdersFragment extends Fragment implements
         initViews(view);
         setupRecyclerView();
         setupSearch();
-        setupStatusFilter();
+        setupStatusChips();
+        setupSortFilter();
         setupObservers();
         setupClickListeners();
 
@@ -92,8 +97,8 @@ public class AdminOrdersFragment extends Fragment implements
         progressIndicator = view.findViewById(R.id.progressIndicator);
         emptyStateView = view.findViewById(R.id.emptyStateView);
         statusChipGroup = view.findViewById(R.id.statusChipGroup);
-        statusFilterSpinner = view.findViewById(R.id.statusFilterSpinner);
-        statusFilterLayout = view.findViewById(R.id.statusFilterLayout);
+        sortFilterSpinner = view.findViewById(R.id.sortFilterSpinner);
+        sortFilterLayout = view.findViewById(R.id.sortFilterLayout);
     }
 
     private void setupRecyclerView() {
@@ -127,32 +132,8 @@ public class AdminOrdersFragment extends Fragment implements
         });
     }
 
-    private void setupStatusFilter() {
-        // Setup dropdown for status filter
-        ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            orderStatuses
-        );
-        statusFilterSpinner.setAdapter(statusAdapter);
-        statusFilterSpinner.setText("All Status", false);
-
-        statusFilterSpinner.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedStatus = orderStatuses[position];
-            if (selectedStatus.equals("All Status")) {
-                currentStatusFilter = "";
-            } else {
-                currentStatusFilter = selectedStatus;
-            }
-            performSearch(searchEditText.getText().toString().trim());
-        });
-
-        // Setup status chips for quick filtering
-        setupStatusChips();
-    }
-
     private void setupStatusChips() {
-        String[] quickStatuses = {"All", "Pending", "Processing", "Delivered"};
+        String[] quickStatuses = {"All", "Pending", "Processing", "Delivered", "Cancelled"};
 
         for (String status : quickStatuses) {
             Chip chip = new Chip(getContext());
@@ -176,7 +157,6 @@ public class AdminOrdersFragment extends Fragment implements
 
                     // Update filter
                     currentStatusFilter = status.equals("All") ? "" : status;
-                    statusFilterSpinner.setText(status.equals("All") ? "All Status" : status, false);
                     performSearch(searchEditText.getText().toString().trim());
                 }
             });
@@ -185,29 +165,29 @@ public class AdminOrdersFragment extends Fragment implements
         }
     }
 
+    private void setupSortFilter() {
+        // Setup dropdown for sort filter
+        ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            sortOptions
+        );
+        sortFilterSpinner.setAdapter(sortAdapter);
+        sortFilterSpinner.setText("Default", false);
+
+        sortFilterSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedSort = sortOptions[position];
+            currentSortFilter = selectedSort;
+            performSearch(searchEditText.getText().toString().trim());
+        });
+    }
+
     private void performSearch(String query) {
-        if (query.isEmpty() && currentStatusFilter.isEmpty()) {
+        if (query.isEmpty() && currentStatusFilter.isEmpty() && currentSortFilter.equals("Default")) {
             viewModel.loadOrders();
         } else {
-            // Áp dụng filter trạng thái trước (nếu có)
-            if (!currentStatusFilter.isEmpty()) {
-                viewModel.filterByStatus(currentStatusFilter);
-            }
-
-            // Sau đó search theo query (nếu có)
-            if (!query.isEmpty()) {
-                viewModel.searchOrders(query);
-            }
-
-            // Nếu chỉ có query mà không có filter status
-            if (!query.isEmpty() && currentStatusFilter.isEmpty()) {
-                viewModel.searchOrders(query);
-            }
-
-            // Nếu chỉ có filter status mà không có query
-            if (query.isEmpty() && !currentStatusFilter.isEmpty()) {
-                viewModel.filterByStatus(currentStatusFilter);
-            }
+            // Apply filters and search
+            viewModel.searchAndFilterOrders(query, currentStatusFilter, currentSortFilter);
         }
     }
 

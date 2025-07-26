@@ -480,4 +480,52 @@ public class AdminOrderViewModel extends ViewModel {
             }
         });
     }
+
+    public void searchAndFilterOrders(String searchQuery, String statusFilter, String sortFilter) {
+        if (allOrders == null || allOrders.isEmpty()) {
+            // Nếu chưa có data, load trước
+            loadOrders();
+            return;
+        }
+
+        List<Order> filtered = new ArrayList<>(allOrders);
+
+        // Apply status filter
+        if (statusFilter != null && !statusFilter.isEmpty() && !statusFilter.equals("All Status")) {
+            filtered = filtered.stream()
+                    .filter(order -> order.getStatus().equalsIgnoreCase(statusFilter))
+                    .collect(Collectors.toList());
+        }
+
+        // Apply search by customer name
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            String query = searchQuery.trim().toLowerCase();
+            filtered = filtered.stream()
+                    .filter(order -> {
+                        String customerName = order.getUserName();
+                        return customerName != null && customerName.toLowerCase().contains(query);
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Apply sorting
+        if (sortFilter != null && !sortFilter.equals("Default")) {
+            switch (sortFilter) {
+                case "Total Amount (Low to High)":
+                    filtered.sort((o1, o2) -> Double.compare(o1.getTotalAmount(), o2.getTotalAmount()));
+                    break;
+                case "Total Amount (High to Low)":
+                    filtered.sort((o1, o2) -> Double.compare(o2.getTotalAmount(), o1.getTotalAmount()));
+                    break;
+                case "Order ID (Low to High)":
+                    filtered.sort((o1, o2) -> Integer.compare(o1.getId(), o2.getId()));
+                    break;
+                case "Order ID (High to Low)":
+                    filtered.sort((o1, o2) -> Integer.compare(o2.getId(), o1.getId()));
+                    break;
+            }
+        }
+
+        orders.setValue(filtered);
+    }
 }
